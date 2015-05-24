@@ -1,5 +1,6 @@
 #include "YahooStocksRealtime.hpp"
 #include <strstream>
+#include <iostream>
 
 static uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
 {
@@ -35,7 +36,10 @@ YahooStocksRealtime::YahooStocksRealtime(int code, std::string market)
 
     std::strstream ss;
     ss << code;
-    std::string url = (std::string)"http://stocks.finance.yahoo.co.jp/stocks/detail/?code=" + ss.str() + "." + market;
+    std::string code_str;
+    ss >> code_str;
+    std::string url = (std::string)"http://stocks.finance.yahoo.co.jp/stocks/detail/?code=" + code_str + "." + market;
+    std::cout << url << " #URL" << std::endl;
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
@@ -85,9 +89,16 @@ void YahooStocksRealtime::extractRealtimeStockInfo(TidyDoc doc, TidyNode tnod, i
         ctmbstr name = tidyNodeGetName( child );
         if ( name ) // HTML tag 
         {
+            int i;
+            for (i = 0; i < indent; i++) printf(" ");
+            printf("%s Tag (", name);
+
             TidyAttr attr;
             // 属性名
             for ( attr=tidyAttrFirst(child); attr; attr=tidyAttrNext(attr) ) {
+                printf("%s", tidyAttrName(attr));
+                tidyAttrValue(attr)?printf("=\"%s\" ", tidyAttrValue(attr)):printf(" ");
+
                 // Stock Price
                 if (name && !strcmp(name, "td") && !strcmp(tidyAttrName(attr), "class") && !strcmp(tidyAttrValue(attr), "stoksPrice")) {
                     child = tidyGetChild(child);
@@ -95,15 +106,20 @@ void YahooStocksRealtime::extractRealtimeStockInfo(TidyDoc doc, TidyNode tnod, i
                     tidyBufInit(&buf);
                     tidyNodeGetText(doc, child, &buf);
                     data.setPrices(comma_atof(buf.bp));
+                    //                    std::cout << buf.bp << std::endl;
                 }
             }
         } else { /* text, cdata, etc... */ 
             TidyBuffer buf;
             tidyBufInit(&buf);
             tidyNodeGetText(doc, child, &buf);
+
+            int i;
+            for (i = 0; i < indent; i++) printf(" ");
+            printf("%s\n", buf.bp?(char *)buf.bp:"");
             tidyBufFree(&buf);
         }
-        extractRealtimeStockInfo( doc, child, indent + 4 ); /* recursive */ 
+        extractRealtimeStockInfo( doc, child, indent + 2 ); /* recursive */ 
     }
 }
 
