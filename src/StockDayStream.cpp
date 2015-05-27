@@ -17,6 +17,12 @@ StockDayStream::~StockDayStream(void)
         delete (*it);
     }
 }
+    
+StockDayStream::StockDayStream(void)
+{
+}
+
+
 
 StockDayStream::StockDayStream(std::string code, std::string market, std::string name, std::string category)
     : code_(code), market_(market), name_(name), category_(category)

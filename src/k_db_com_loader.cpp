@@ -3,9 +3,8 @@
 #include <sstream>
 #include <iostream>
 #include "date.hpp"
-#include "StockData.hpp"
 
-void k_db_com_loader::load(StockData* data) 
+void k_db_com_loader::load(std::string database)
 {
     system("ls -1 ../data/20* > tmp_filename");
 
@@ -29,10 +28,10 @@ void k_db_com_loader::load(StockData* data)
 
 //            std::cout << tmp[0] << " " << ymdtoi(atoi(filename.substr(8, 4).c_str()), atoi(filename.substr(12, 2).c_str()), atoi(filename(14, 2).c_str())) << std::endl;
 //            std::cout << ymdtoi(atoi(filename.substr(8, 4).c_str()), atoi(filename.substr(12, 2).c_str()), atoi(filename.substr(14, 2).c_str())) << std::endl;
-            data->addStockDay(tmp[0], tmp[1], tmp[2], tmp[3], new StockDay(ymdtoi(atoi(filename.substr(8, 4).c_str()), atoi(filename.substr(12, 2).c_str()), atoi(filename.substr(14, 2).c_str())), atoi(tmp[4].c_str()), atoi(tmp[5].c_str()), atoi(tmp[6].c_str()), atoi(tmp[7].c_str()), atoi(tmp[8].c_str()), atoi(tmp[9].c_str())));
+
+//            data->addStockDay(tmp[0], tmp[1], tmp[2], tmp[3], new StockDay("not yet"/*ymdtoi(atoi(filename.substr(8, 4).c_str()), atoi(filename.substr(12, 2).c_str()), atoi(filename.substr(14, 2).c_str()))*/, atoi(tmp[4].c_str()), atoi(tmp[5].c_str()), atoi(tmp[6].c_str()), atoi(tmp[7].c_str()), atoi(tmp[8].c_str()), atoi(tmp[9].c_str())));
         }
     }
 
-    data->sortAll();
     system("rm tmp_filename");
 }

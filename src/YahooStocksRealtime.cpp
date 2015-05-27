@@ -27,19 +27,21 @@ double YahooStocksRealtime::comma_atof(unsigned char* bp)
 
 YahooStocksRealtime::YahooStocksRealtime(int code, std::string market) 
 {
+    data.setPrices(-1);
+
     CURL *curl;
     char curl_errbuf[CURL_ERROR_SIZE];
     TidyDoc tdoc;
     TidyBuffer docbuf = {0};
     TidyBuffer tidy_errbuf = {0};
-    int err;
+    int err = 0;
 
     std::strstream ss;
     ss << code;
     std::string code_str;
     ss >> code_str;
     std::string url = (std::string)"http://stocks.finance.yahoo.co.jp/stocks/detail/?code=" + code_str + "." + market;
-    std::cout << url << " #URL" << std::endl;
+//    std::cout << url << " #URL" << std::endl;
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
@@ -55,22 +57,17 @@ YahooStocksRealtime::YahooStocksRealtime(int code, std::string market)
     tidyBufInit(&docbuf);
 
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &docbuf);
-    err=curl_easy_perform(curl);
-    if ( !err ) {
-        err = tidyParseBuffer(tdoc, &docbuf); /* parse the input */ 
-        if ( err >= 0 ) {
-            err = tidyCleanAndRepair(tdoc); /* fix any problems */ 
-            if ( err >= 0 ) {
-                err = tidyRunDiagnostics(tdoc); /* load tidy error buffer */ 
-                if ( err >= 0 ) {
-                    extractRealtimeStockInfo( tdoc, tidyGetRoot(tdoc), 0 ); /* walk the tree */ 
-//                    fprintf(stderr, "%s\n", tidy_errbuf.bp); /* show errors */ 
-                }
-            }
-        }
+    if (curl_easy_perform(curl)) {
+        fprintf(stderr, "curl error: %s\n", curl_errbuf);
+        err = 1;
     }
-    else
-        fprintf(stderr, "%s\n", curl_errbuf);
+    tidyParseBuffer(tdoc, &docbuf); /* parse the input */ 
+    tidyCleanAndRepair(tdoc); /* fix any problems */ 
+    tidyRunDiagnostics(tdoc); /* load tidy error buffer */ 
+    fprintf(stderr, "%s\n", tidy_errbuf.bp); /* show errors */ 
+
+    if (!err) 
+        extractRealtimeStockInfo( tdoc, tidyGetRoot(tdoc), 0 ); /* walk the tree */ 
 
     /* clean-up */ 
     curl_easy_cleanup(curl);
@@ -89,15 +86,19 @@ void YahooStocksRealtime::extractRealtimeStockInfo(TidyDoc doc, TidyNode tnod, i
         ctmbstr name = tidyNodeGetName( child );
         if ( name ) // HTML tag 
         {
-            int i;
-            for (i = 0; i < indent; i++) printf(" ");
-            printf("%s Tag (", name);
+            /*
+               int i;
+               for (i = 0; i < indent; i++) printf(" ");
+               printf("%s Tag (", name);
+               */
 
             TidyAttr attr;
             // 属性名
             for ( attr=tidyAttrFirst(child); attr; attr=tidyAttrNext(attr) ) {
-                printf("%s", tidyAttrName(attr));
-                tidyAttrValue(attr)?printf("=\"%s\" ", tidyAttrValue(attr)):printf(" ");
+                /*
+                   printf("%s", tidyAttrName(attr));
+                   tidyAttrValue(attr)?printf("=\"%s\" ", tidyAttrValue(attr)):printf(" ");
+                   */
 
                 // Stock Price
                 if (name && !strcmp(name, "td") && !strcmp(tidyAttrName(attr), "class") && !strcmp(tidyAttrValue(attr), "stoksPrice")) {
@@ -105,8 +106,13 @@ void YahooStocksRealtime::extractRealtimeStockInfo(TidyDoc doc, TidyNode tnod, i
                     TidyBuffer buf;
                     tidyBufInit(&buf);
                     tidyNodeGetText(doc, child, &buf);
-                    data.setPrices(comma_atof(buf.bp));
+
                     //                    std::cout << buf.bp << std::endl;
+                    // 朝など
+                    if (strstr((const char*)buf.bp, "---"))
+                        data.setPrices(-1);
+                    else
+                        data.setPrices(comma_atof(buf.bp));
                 }
             }
         } else { /* text, cdata, etc... */ 
@@ -114,9 +120,11 @@ void YahooStocksRealtime::extractRealtimeStockInfo(TidyDoc doc, TidyNode tnod, i
             tidyBufInit(&buf);
             tidyNodeGetText(doc, child, &buf);
 
-            int i;
-            for (i = 0; i < indent; i++) printf(" ");
-            printf("%s\n", buf.bp?(char *)buf.bp:"");
+            /*
+               int i;
+               for (i = 0; i < indent; i++) printf(" ");
+               printf("%s\n", buf.bp?(char *)buf.bp:"");
+               */
             tidyBufFree(&buf);
         }
         extractRealtimeStockInfo( doc, child, indent + 2 ); /* recursive */ 

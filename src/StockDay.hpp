@@ -1,34 +1,37 @@
 #ifndef __STOCK_DAY_HPP_INCLUDED__
 #define __STOCK_DAY_HPP_INCLUDED__
+#include <string>
+
 class StockDay {
 private:
-    int day_;
-    int prices_;
-    int lowest_;
-    int highest_;
-    int opening_;
-    int closing_;
-    int value_; // 売買代金
-    int volume_; // 出来高
+    std::string day_; //2008-12-31 23:59:59 など 
+    double prices_;
+    double lowest_;
+    double highest_;
+    double opening_;
+    double closing_;
+    double value_; // 売買代金
+    double volume_; // 出来高
 public:
-    StockDay(int day, int lowest, int highest, int opening, int closing, int value, int volume);
+    StockDay(std::string day, double lowest, double highest, double opening, double closing, double value, double volume);
     StockDay();
 
-    int getDay(void){return day_;}
-    void setDay(int day){day_ = day;}
-    int getPrices(void){return prices_;}
-    void setPrices(int prices){prices_ = prices;}
-    int getLowest(void){return lowest_;}
-    void setLowest(int lowest){lowest_ = lowest;}
-    int getHighest(void){return highest_;}
-    void setHighest(int highest){highest_ = highest;}
-    int getOpening(void){return opening_;}
-    void setOpening(int opening){opening_ = opening;}
-    int getClosing(void){return closing_;}
-    void setClosing(int closing){closing_ = closing;}
-    int getValue(void){return value_;}
-    void setValue(int value){value_ = value;}
-    int getVolume(void){return volume_;}
-    void setVolume(int volume){volume_ = volume;}
+    std::string getDay(void){return day_;}
+    void setDay(std::string day){day_ = day;}
+//    void setDayInteger(string day){day_ = day;}
+    double getPrices(void){return prices_;}
+    void setPrices(double prices){prices_ = prices;}
+    double getLowest(void){return lowest_;}
+    void setLowest(double lowest){lowest_ = lowest;}
+    double getHighest(void){return highest_;}
+    void setHighest(double highest){highest_ = highest;}
+    double getOpening(void){return opening_;}
+    void setOpening(double opening){opening_ = opening;}
+    double getClosing(void){return closing_;}
+    void setClosing(double closing){closing_ = closing;}
+    double getValue(void){return value_;}
+    void setValue(double value){value_ = value;}
+    double getVolume(void){return volume_;}
+    void setVolume(double volume){volume_ = volume;}
 };
 #endif

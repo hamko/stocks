@@ -29,6 +29,7 @@ public:
     stock_itr end(void);
 
     StockDayStream(std::string code, std::string market, std::string name, std::string category);
+    StockDayStream(void);
     ~StockDayStream(void);
 };
 #endif

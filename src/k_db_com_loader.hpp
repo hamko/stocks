@@ -6,7 +6,7 @@ class k_db_com_loader : public Loader {
 private:
     std::string filename;
 public: 
-    virtual void load(StockData* data);
+    virtual void load(std::string database);
 
 };
 #endif
