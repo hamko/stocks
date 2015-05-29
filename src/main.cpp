@@ -52,7 +52,8 @@ int main(int argc, char** argv)
     // 処理
     string database_string(database);
     StockDayStreamAllocator* allocator= new StockDayStreamAllocator(database_string);
-    StockDayStream* ganhoo = allocator->newStockDayStream("3765", "2014-12-01", "2014-12-15");
+    StockDayStream* ganhoo = allocator->newStockDayStream("3765", "2012-12-01", "2013-12-15");
+    cout << ganhoo->stock_day_.size() << endl;
     decisionCross* dc = new decisionCross(ganhoo, 5, 16, 5);
     for (stock_itr it = ganhoo->begin(); it != ganhoo->end(); it++) {
         //        cout << (*it)->getDay() << endl;    

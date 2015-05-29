@@ -1,5 +1,5 @@
 #include "YahooStocksRealtime.hpp"
-#include <strstream>
+#include <sstream>
 #include <iostream>
 
 static uint write_cb(char *in, uint size, uint nmemb, TidyBuffer *out)
@@ -36,11 +36,9 @@ YahooStocksRealtime::YahooStocksRealtime(int code, std::string market)
     TidyBuffer tidy_errbuf = {0};
     int err = 0;
 
-    std::strstream ss;
+    std::stringstream ss;
     ss << code;
-    std::string code_str;
-    ss >> code_str;
-    std::string url = (std::string)"http://stocks.finance.yahoo.co.jp/stocks/detail/?code=" + code_str + "." + market;
+    std::string url = (std::string)"http://stocks.finance.yahoo.co.jp/stocks/detail/?code=" + ss.str() + "." + market;
 //    std::cout << url << " #URL" << std::endl;
     curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());

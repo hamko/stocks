@@ -2,12 +2,10 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <string>
+#include <sstream>
 
 // 抽出結果が返るコールバック関数
 static int callback(void* stream, int argc, char **argv, char **azColName){
-    if (argc != 6) {
-        std::cerr << "wrong argc" << std::endl;
-    }
     static_cast<StockDayStream*>(stream)->addStockDay(new StockDay(std::string(argv[0]), atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), -1));
 
     return SQLITE_OK;
@@ -21,8 +19,10 @@ StockDayStream* StockDayStreamAllocator::newStockDayStream(std::string code, std
     sqlite3* db;
     char* zErrMsg;
     sqlite3_open(database.c_str(), &db);
-    std::string command = "select stock_code, time, prices, lowest, highest, opening, closing, value from t_price";
-    sqlite3_exec(db, command.c_str(), callback, stream, &zErrMsg);
+    std::stringstream ss;
+    ss << "select stock_code, time, prices, lowest, highest, opening, closing, value from t_price where stock_code='" << code << "' and time between '" << day_begin << "' and '" << day_end << "'"; 
+    std::cout << ((std::string)ss.str()).c_str() << std::endl;
+    sqlite3_exec(db, ss.str().c_str(), callback, stream, &zErrMsg);
     if (zErrMsg) {
         std::cerr << zErrMsg << std::endl;
     }
