@@ -1,4 +1,9 @@
-#http://stocks.finance.yahoo.co.jp/stocks/chart/?code=8715.T の株価を取得するプログラム．
+#妥当株価を大量取得してoctaveで割安・割高・優良株を計算するプログラム
 ./compile.sh
 ./tidycurl  > a 2> err
+octave analize.m
 
+#生成されるファイルは M_Economical.dat M_Expensive.dat M_GoodCompany.dat
+#順序は，(銘柄，PER妥当株価，PBR妥当株価，アナリスト人数，レーティング, 対PER妥当株価騰落率，対PBR妥当株価騰落率)
+
+#詳しいしきい値などはanalize.mを参照
