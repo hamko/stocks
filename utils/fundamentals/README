@@ -1,0 +1,4 @@
+#http://stocks.finance.yahoo.co.jp/stocks/chart/?code=8715.T の株価を取得するプログラム．
+./compile.sh
+./tidycurl  > a 2> err
+

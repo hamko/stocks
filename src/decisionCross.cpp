@@ -11,7 +11,7 @@ decisionCross::decisionCross(StockDayStream* stock, int s, int m, int a)
 void decisionCross::update(stock_itr day)
 {
     if (day - stock_->begin() <= medium_term_tau + analysis_period) {
-        std::cout << "not enough length" << __FILE__ << " " << __LINE__<< std::endl;
+//        std::cout << "not enough length" << __FILE__ << " " << __LINE__<< std::endl;
         return;
     }
 
