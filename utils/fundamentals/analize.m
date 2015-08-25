@@ -17,7 +17,7 @@ M_pbr = M(M(:, 8) != 0, :);
 save M_per.dat M_per
 save M_pbr.dat M_pbr
 
-# 銘柄，PER妥当株価，PBR妥当株価，アナリスト人数，レーティング, 対PER妥当株価騰落率，対PBR妥当株価騰落率
+# 銘柄，PER妥当株価，PBR妥当株価，アナリスト人数，レーティング, PER妥当株価と現在との差の割合，PBR妥当株価と現在との差の割合
 selection = [1, 5, 8, 9, 11, 17, 19]; 
 
 #全てソートのキーは，対PER妥当株価騰落率で行なっている．
@@ -30,10 +30,15 @@ M_Economical = sortrows(M_Economical, 6)
 M_Expensive = M(M(:, 5) > +1.5 & M(:, 8) > +1.5 & M(:, 9) > 4 & M(:, 11) > 4.0, selection);
 M_Expensive = sortrows(M_Expensive, 6)
 
-# 優良株(アナリスト5人以上，レーティング4.5以上)
-M_GoodCompany = M(M(:, 11)>4.5 & M(:, 9) > 4, selection);
+M_GoodCompany = M(M(:, 11)>4.0 & M(:, 9) > 4, selection);
 M_GoodCompany = sortrows(M_GoodCompany, 6)
  
 save M_Economical.dat M_Economical
 save M_Expensive.dat M_Expensive
 save M_GoodCompany.dat M_GoodCompany
+
+
+#hist(M(M(:,17)!=0, 5), 20); figure;       # PER妥当株価の差のσ
+#hist(M(M(:,17)!=0, 17), 20); figure;      # PER妥当株価との差の割合
+figure; hist(M_GoodCompany(:, 2), 20);     # 注目株のPER妥当株価の差のσ
+figure; hist(M_GoodCompany(:, 6), 20);     # 注目株のPER妥当株価との差の割合
