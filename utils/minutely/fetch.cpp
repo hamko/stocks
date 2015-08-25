@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     omp_set_num_threads(10);
 
     stringstream ss;
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int y = 2015; y > 2006; y--) {
 //    int y = atoi(argv[1]);
         for (int m = 12; m >= 1; m--) {
