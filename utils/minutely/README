@@ -1,0 +1,4 @@
+./compile
+./a.out
+cat `ls -r 201508*` > all
+#4005などは手動で消す
