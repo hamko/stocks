@@ -1,4 +1,9 @@
-for i in "4005" "6770"
+#!/bin/bash
+. list225
+. listOther
+list=(${list225[*]} ${listOther[*]})
+
+for i in "${list[@]}"
 do
     mkdir $i 2> /dev/null
     wget -q `date +"http://k-db.com/stocks/$i-T/minutely?date=%Y-%m-%d&download=csv"` -Otmp
@@ -8,4 +13,5 @@ do
         continue
     fi
     sed -e "1,2d" tmp > $i/`date +"%Y%m%d"`
+    sleep 1
 done
