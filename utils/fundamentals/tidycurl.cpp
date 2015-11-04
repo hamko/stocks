@@ -3,8 +3,8 @@
  */ 
 
 #include <stdio.h>
-#include <tidy/tidy.h>
-#include <tidy/buffio.h>
+#include <tidy.h>
+#include <buffio.h>
 #include <curl/curl.h>
 
 #include <sstream>
@@ -332,7 +332,7 @@ int main(int argc, char **argv )
         int i = list[j];
         ostringstream os;
         os.str("");
-        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_per&bcode=" << to_string(i);
+        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_per&bcode=" << to_string((long long)i);
         extractExpectedStockPrice(os.str().c_str()); // PER
         if (!price_now)
             continue;
@@ -344,7 +344,7 @@ int main(int argc, char **argv )
             cout << 0 << " ";
 
         os.str("");
-        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_pbr&bcode=" << to_string(i);
+        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_pbr&bcode=" << to_string((long long)i);
         extractExpectedStockPrice(os.str().c_str()); // PBR
         cout << (int)f_price[1] << " " << (int)(f_price[0] - f_price[1]) << " ";
         if (f_price[0] - f_price[1] != 0)
@@ -353,7 +353,7 @@ int main(int argc, char **argv )
             cout << 0 << " ";
 
         os.str("");
-        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_chg&bcode=" << to_string(i);
+        os << "http://kabuyoho.ifis.co.jp/index.php?action=tp1&sa=report_chg&bcode=" << to_string((long long)i);
         extractAnalistNum(os.str().c_str()); // PBR
 //        cout << "|"  << rating_num[0] << "|" << rating_num[1] << endl;
 
