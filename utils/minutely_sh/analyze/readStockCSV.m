@@ -6,9 +6,19 @@ hajimene=data(:, 3);
 takane=data(:, 4);
 yasune=data(:, 5);
 owarine=data(:, 6);
+fliplr(owarine);
+fliplr(minites);
+fliplr(hajimene);
+fliplr(takane);
+fliplr(yasune);
 
-% break time compensation
-for i_inv = 1:size(owarine)-1
+% break time compensation TODO use ending price!
+for i_inv = 2:size(owarine)
+    if owarine(i_inv) == 0
+        owarine(i_inv) = owarine(i_inv-1);
+    endif 
+end
+for i_inv = 2:size(owarine)-1
     i = size(owarine, 1) - i_inv;
     if owarine(i) == 0
         owarine(i) = owarine(i+1);
