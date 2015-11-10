@@ -1,3 +1,4 @@
+global getResistance;
 data =csvread('all'); # 一番最後の要素は必ず全部埋まっていること．
 takane=data(:, 4);
 yasune=data(:, 5);
@@ -11,3 +12,5 @@ end
 
 plot(fliplr(takane')')
 
+[a, b] = getResistance(takane(1:25), 'uwane'); 
+#[a, b] = getResistance(yasune(1:25), 'shitane');
