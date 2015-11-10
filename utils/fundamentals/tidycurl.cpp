@@ -3,8 +3,9 @@
  */ 
 
 #include <stdio.h>
-#include <tidy.h>
-#include <buffio.h>
+//#include <tidy.h>
+#include <tidy/tidy.h>
+#include <tidy/buffio.h>
 #include <curl/curl.h>
 
 #include <sstream>

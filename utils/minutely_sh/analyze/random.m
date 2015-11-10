@@ -1,7 +1,4 @@
-%filename = '../7203/20150819';
-%filename = '../7203/20150819';
-%filename = '../7203/20150819';
-%filename = '../7203/20150819';
+filename = '../7203/20151110';
 [date, minites, hajimene, takane, yasune, owarine] = readStockCSV(filename);
 
 money_first = 10000000; % [yen]
@@ -16,13 +13,13 @@ for oi = 1:size(owarine)
 	if (rand() < trade_threshold && money > o * 100) 
 		money -= o * 100;
 		stock_num += 100;
-		volume += o;
+		volume += o * 100;
 		trade_num++;
 	end
 	if (rand() > 1 - trade_threshold && stock_num > 0) 
 		money += o * 100;
 		stock_num -= 100;
-		volume += o;
+		volume += o * 100;
 		trade_num++;
 	end
 
