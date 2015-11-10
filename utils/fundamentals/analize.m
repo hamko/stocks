@@ -26,8 +26,8 @@ selection = [1, 5, 8, 9, 11, 17, 19];
 M_Economical = M(M(:, 5) < -1.5 & M(:, 8) < -1.5 & M(:, 9) > 4 & M(:, 11) > 4.0, selection);
 M_Economical = sortrows(M_Economical, 6)
 
-# 割高注目株(アナリスト5人以上, レーティング4.0以上, PBR, PERともに標準偏差-1.5以下)なもの
-M_Expensive = M(M(:, 5) > +1.5 & M(:, 8) > +1.5 & M(:, 9) > 4 & M(:, 11) > 4.0, selection);
+# 割高注目株(アナリスト5人以上, PBR, PERともに標準偏差-1.5以下)なもの
+M_Expensive = M(M(:, 5) > +1.5 & M(:, 8) > +1.5 & M(:, 9) > 4, selection);
 M_Expensive = sortrows(M_Expensive, 6)
 
 M_GoodCompany = M(M(:, 11)>4.0 & M(:, 9) > 4, selection);
