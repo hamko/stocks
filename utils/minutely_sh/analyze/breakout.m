@@ -1,6 +1,7 @@
 addpath("~/git/sample/octave");
 
-filename = '../7203/20151110';
+% filename = '../7203/20151110';
+filename = '../6146/20151110';
 [date, minites, hajimene, takane, yasune, owarine] = readStockCSV(filename);
 
 global money_first; global money; global stock_num; global volume; global trade_num;
@@ -44,19 +45,20 @@ for oi = 1:size(owarine)
             sell(o, 100); 
         end
     end
-    len = 10; coeff = 4;
+    len = 10; coeff = 10;
+%    if (oi == 95)
     if (oi >= len+1)
         plot([1:oi]', owarine(1:oi), 'k'); hold on; 
         [a, b] = leasqr_line([oi-len:oi]', owarine(oi-len:oi), 0, coeff);
         plot([oi-len:oi]', a*[oi-len:oi]+b, 'b'); hold on; 
         [a, b] = leasqr_line([oi-len:oi]', owarine(oi-len:oi), 1, coeff);
         xlim([0 380]); 
-        ylim([7580 7645]); 
+        ylim([min(owarine) max(owarine)]); 
         plot([oi-len:oi]', a*[oi-len:oi]+b, 'r'); hold off; 
         pause(0.001);
     end
 end
-pause(3)
+pause(10)
 
 % Obliged Trade
 if (stock_num != 0)
