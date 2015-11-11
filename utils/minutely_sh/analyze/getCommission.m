@@ -1,5 +1,7 @@
 function ret=getCommission(price)
-if (price < 100000)
+if (price == 0)
+    ret = 0;
+elseif (price < 100000)
 	ret = 300;
 elseif (price < 300000)
 	ret = 500;
