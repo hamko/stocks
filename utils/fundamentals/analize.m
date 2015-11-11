@@ -36,6 +36,7 @@ M_GoodCompany = sortrows(M_GoodCompany, 6);
 M_Market = [mean(M(M(:, 5) != 0, 5)) median(M(M(:, 5) != 0, 5))];
 M_GoodMarket = [mean(M_GoodCompany(:, 2)) median(M_GoodCompany(:, 2))];
  
+save M.dat M
 save M_Economical.dat M_Economical
 save M_Expensive.dat M_Expensive
 save M_GoodCompany.dat M_GoodCompany
