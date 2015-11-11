@@ -24,5 +24,6 @@ echo "以上です。今日も一日頑張ってください。" >> tmp
 
 cat tmp | mail -s `date +"%Y/%m/%d" --date "1 day ago"` wakataberyo@gmail.com 
 cp tmp `date +"%Y%m%d" --date "1 day ago"`.report 
+cp M.dat `date +"%Y%m%d" --date "1 day ago"`_M.dat
 
 rm tmp
