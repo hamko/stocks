@@ -260,7 +260,7 @@ profit = money_end - money_first;
 gap = owarine(end) - owarine(1);
 
 % Print results
-printf('%s %f %d %f %f\n', filename, profit+commission, profit, gap, gap/owarine(1));
+printf('%s %f %d %d %f %f\n', filename, profit+commission, profit, trade_num, gap, gap/owarine(1));
 
 
 end
