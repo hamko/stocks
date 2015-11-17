@@ -1,8 +1,8 @@
 for thres_test = [0.6]
 for thres_sl = [10, 20, 30] % 元は40
 
-visualize_flag = 0;
-visualize_movie_flag = 0;
+visualize_flag = 1;
+visualize_movie_flag = 1;
 
 addpath('~/git/sample/octave');
 
