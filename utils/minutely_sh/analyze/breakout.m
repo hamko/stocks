@@ -1,15 +1,17 @@
 visualize_flag = 0;
 visualize_movie_flag = 0;
 
-addpath("~/git/sample/octave");
+addpath('~/git/sample/octave');
 
 filenames = {'../7203/20150818' '../7203/20150907' '../7203/20150930' '../7203/20151022'  '../7203/20150819' '../7203/20150908' '../7203/20151001' '../7203/20151023' '../7203/20150820' '../7203/20150909' '../7203/20151002' '../7203/20151026' '../7203/20150821' '../7203/20150910' '../7203/20151005' '../7203/20151027' '../7203/20150824' '../7203/20150911' '../7203/20151006' '../7203/20151028' '../7203/20150825' '../7203/20150914' '../7203/20151007' '../7203/20151029' '../7203/20150826' '../7203/20150915' '../7203/20151008' '../7203/20151030' '../7203/20150827' '../7203/20150916' '../7203/20151009' '../7203/20151102' '../7203/20150828' '../7203/20150917' '../7203/20151013' '../7203/20151104' '../7203/20150831' '../7203/20150918' '../7203/20151014' '../7203/20151105' '../7203/20150901' '../7203/20150924' '../7203/20151015' '../7203/20151106' '../7203/20150902' '../7203/20150925' '../7203/20151016' '../7203/20151109' '../7203/20150903' '../7203/20150928' '../7203/20151020' '../7203/20151110' '../7203/20150904' '../7203/20150929' '../7203/20151021'};
-%filenames = {'../7203/20151102'};
+%filenames = {'../7203/20150818' '../7203/20150907' '../7203/20150930' '../7203/20151022'  '../7203/20150819' '../7203/20150908'};
+%filenames = {'../7203/20150818' '../7203/20150907' };
 %filenames = {'../6146/20151106'};
 %filenames = {'../6146/20151109'};
-%filenames = {'../7203/20150929'};
 
+fileno = 0;
 for filename_cell = filenames
+fileno++; fprintf(stderr, '%d/%d\n', fileno, size(filenames, 2));
 filename = filename_cell{1};
 [date, minites, hajimene, takane, yasune, owarine] = readStockCSV(filename);
 
@@ -141,10 +143,14 @@ function ret = getMarketValue()
     end
 end
 
-upper_slope = [];
-lower_slope = [];
-threshold = 0;
-
+a_upper_v = [];
+a_lower_v = [];
+b_upper_v = [];
+b_lower_v = [];
+diff_ave_v = [];
+range_lower_v = [];
+range_upper_v = [];
+range_now_v = [];
 if (visualize_flag)
     f1 = figure();
     f2 = figure();
@@ -157,65 +163,71 @@ for oi = 1:size(owarine)
     coeff = 10; % あんまりいじらないこと
     if (oi >= len+1 & is_valid(oi) & is_valid(oi-len))
         [a_lower, b_lower] = leasqr_line([oi-len:oi]', owarine(oi-len:oi), 0, coeff);
-        lower_slope(oi) = a_lower;
         [a_upper, b_upper] = leasqr_line([oi-len:oi]', owarine(oi-len:oi), 1, coeff);
-        upper_slope(oi) = a_upper;
+        diff_ave = (a_upper-a_lower)*len/2 + (b_upper-b_lower); % 平均上値-下値差
+        range_lower = a_lower*oi+b_lower;
+        range_upper = a_upper*oi+b_upper;
+        range_now = (owarine(oi)-range_lower) / (range_upper-range_lower); % 内分(0-1)
 
-        % slope based trade
-        upper_thres = 0.5; % about 1.0? TODO
-        lower_thres = -0.5; % about 1.0?
+        a_lower_v(oi) = a_lower;
+        a_upper_v(oi) = a_upper;
+        b_lower_v(oi) = b_lower;
+        b_upper_v(oi) = b_upper;
+        diff_ave_v(oi) = diff_ave;
+        range_lower_v(oi) = range_lower;
+        range_upper_v(oi) = range_upper;
+        range_now_v(oi) = range_now;
 
-        if (is_valid(oi))
-            % 上値の急上昇が落ち着いた時に売り
-            %{
-            if (upper_slope(oi-1) < upper_thres & upper_slope(oi) > upper_thres)
-                put(o, 100, oi); 
-            end
-            %}
-            %{
-            if (upper_slope(oi-1) < upper_thres & upper_slope(oi) > upper_thres)
-                call(o, minimum_unit, oi, owarine(oi)-10, owarine(oi)+30); 
-                call_timing = [call_timing, oi];
-            end
-            %}
-            % 下値が急降下が落ち着いて，傾きが戻ってきた時に買い
-            %{
-            if (lower_slope(oi-1) > lower_thres & lower_slope(oi) < lower_thres)
-                call(o, 100, oi); 
-            end
-            %}
-            %{
-            if (lower_slope(oi-1) > lower_thres & lower_slope(oi) < lower_thres)
-                put(o, minimum_unit, oi, owarine(oi)+10, owarine(oi)-30); 
-            end
-            %}
-
-            % Trend Trade
-            if ((upper_slope(oi) + lower_slope(oi))/2 > 0.5)
-                call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
-            end
-            if ((upper_slope(oi) + lower_slope(oi))/2 < 0.5)
-                put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
-            end
-            % BREAKOUT!
-            if (upper_slope(oi-1)-lower_slope(oi-1) < 0.5 & upper_slope(oi) - lower_slope(oi) > 0.5)
-%            if (upper_slope(oi) > 0.5 & lower_slope(oi) > 0.5 & upper_slope(oi-1)-lower_slope(oi-1) < 0.5 & upper_slope(oi) - lower_slope(oi) > 0.5)
-                put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
-            end
-            if (upper_slope(oi-1)-lower_slope(oi-1) > -0.5 & upper_slope(oi) - lower_slope(oi) < -0.5)
-%            if (upper_slope(oi) < -0.5 & lower_slope(oi) < -0.5 & upper_slope(oi-1)-lower_slope(oi-1) > -0.5 & upper_slope(oi) - lower_slope(oi) < -0.5)
-                call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
-            end
+        % 上値の急上昇が落ち着いた時に売り
+        %{
+        if (a_upper_v(oi-1) < 0.5 & a_upper_v(oi) > 0.5)
+            put(o, 100, oi); 
+        end
+        %}
+        %{
+        if (a_upper_v(oi-1) < 0.5 & a_upper_v(oi) > 0.5)
+            call(o, minimum_unit, oi, owarine(oi)-10, owarine(oi)+30); 
+            call_timing = [call_timing, oi];
+        end
+        %}
+        % 下値が急降下が落ち着いて，傾きが戻ってきた時に買い
+        %{
+        if (a_lower_v(oi-1) > -0.5 & a_lower_v(oi) < -0.5)
+            call(o, 100, oi); 
+        end
+        %}
+        %{
+        if (a_lower_v(oi-1) > -0.5 & a_lower_v(oi) < -0.5)
+            put(o, minimum_unit, oi, owarine(oi)+10, owarine(oi)-30); 
+        end
+        %}
+        % Trend Trade
+        if ((a_upper_v(oi) + a_lower_v(oi))/2 > 0.5)
+            call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
+        end
+        if ((a_upper_v(oi) + a_lower_v(oi))/2 < -0.5)
+            put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
+        end
+        % BREAKOUT!
+        if (a_upper_v(oi-1)-a_lower_v(oi-1) < 0.5 & a_upper_v(oi) - a_lower_v(oi) > 0.5)
+%            if (a_upper_v(oi) > 0.5 & a_lower_v(oi) > 0.5 & a_upper_v(oi-1)-a_lower_v(oi-1) < 0.5 & a_upper_v(oi) - a_lower_v(oi) > 0.5)
+            put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
+        end
+        if (a_upper_v(oi-1)-a_lower_v(oi-1) > -0.5 & a_upper_v(oi) - a_lower_v(oi) < -0.5)
+%            if (a_upper_v(oi) < -0.5 & a_lower_v(oi) < -0.5 & a_upper_v(oi-1)-a_lower_v(oi-1) > -0.5 & a_upper_v(oi) - a_lower_v(oi) < -0.5)
+            call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
         end
 
+        %%%%%%%%%%%%%%%%%%%%%%%
         % plot slopes
+        %%%%%%%%%%%%%%%%%%%%%%%
         if ((visualize_flag & visualize_movie_flag) | (visualize_flag & !visualize_movie_flag & oi == size(owarine, 1)))
-            set(0,'CurrentFigure',f1);
-            plot([1:oi]', lower_slope, 'b'); hold on; 
-            plot([1:oi]', upper_slope, 'r'); 
+        set(0,'CurrentFigure',f1);
+        plot([1:oi]', a_lower_v, 'b'); hold on; 
+        plot([1:oi]', a_upper_v, 'r'); 
 
-            % plot stock price
-            plot([1:oi]', owarine(1:oi), 'k');
+        % plot stock price
+        plot([1:oi]', owarine(1:oi), 'k');
 
             plot([oi-len:oi]', a_lower*[oi-len:oi]+b_lower, 'b');
             for bt = call_timing
@@ -233,9 +245,9 @@ for oi = 1:size(owarine)
             set(0,'CurrentFigure',f2);
             hold on;
             xlim([0 380]); 
-            plot([1:oi]', lower_slope, 'b');
-            plot([1:oi]', upper_slope, 'r');
-            plot([1:oi]', upper_slope-lower_slope, 'g');
+            plot([1:oi]', a_lower_v, 'b');
+            plot([1:oi]', a_upper_v, 'r');
+            plot([1:oi]', a_upper_v-a_lower_v, 'g');
             hold off;
             if (visualize_movie_flag)
                 pause(0.001);
@@ -260,7 +272,7 @@ profit = money_end - money_first;
 gap = owarine(end) - owarine(1);
 
 % Print results
-printf('%s %f %d %d %f %f\n', filename, profit+commission, profit, trade_num, gap, gap/owarine(1));
+printf('%s %f %d %d %f\n', filename, profit+commission, trade_num, gap, gap/owarine(1));
 
 
 end
