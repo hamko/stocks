@@ -1,5 +1,5 @@
-for thres_test = [0.6]
-for thres_sl = [10, 20, 30] % 元は40
+for thres_test = [0.1:0.1:0.6] % 元は0.5
+for thres_sl = [10:10:100] % 元は40
 
 visualize_flag = 0;
 visualize_movie_flag = 0;
