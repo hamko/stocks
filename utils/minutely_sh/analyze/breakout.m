@@ -1,3 +1,6 @@
+for thres_test = [0.4:0.1:0.6]
+for thres_sl = [10, 20, 30] % 元は40
+
 visualize_flag = 0;
 visualize_movie_flag = 0;
 
@@ -183,39 +186,38 @@ for oi = 1:size(owarine)
         if (a_upper_v(oi-1) < 0.5 & a_upper_v(oi) > 0.5)
             put(o, 100, oi); 
         end
-        %}
-        %{
         if (a_upper_v(oi-1) < 0.5 & a_upper_v(oi) > 0.5)
             call(o, minimum_unit, oi, owarine(oi)-10, owarine(oi)+30); 
             call_timing = [call_timing, oi];
         end
         %}
+
         % 下値が急降下が落ち着いて，傾きが戻ってきた時に買い
         %{
         if (a_lower_v(oi-1) > -0.5 & a_lower_v(oi) < -0.5)
             call(o, 100, oi); 
         end
-        %}
-        %{
         if (a_lower_v(oi-1) > -0.5 & a_lower_v(oi) < -0.5)
             put(o, minimum_unit, oi, owarine(oi)+10, owarine(oi)-30); 
         end
         %}
         % Trend Trade
+        %{
         if ((a_upper_v(oi) + a_lower_v(oi))/2 > 0.5)
             call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
         end
         if ((a_upper_v(oi) + a_lower_v(oi))/2 < -0.5)
             put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
         end
+        %}
         % BREAKOUT!
-        if (a_upper_v(oi-1)-a_lower_v(oi-1) < 0.5 & a_upper_v(oi) - a_lower_v(oi) > 0.5)
-%            if (a_upper_v(oi) > 0.5 & a_lower_v(oi) > 0.5 & a_upper_v(oi-1)-a_lower_v(oi-1) < 0.5 & a_upper_v(oi) - a_lower_v(oi) > 0.5)
-            put(o, minimum_unit, oi, owarine(oi)+40, owarine(oi)-60);
+        if (a_upper_v(oi-1)-a_lower_v(oi-1) < thres_test & a_upper_v(oi) - a_lower_v(oi) > thres_test)
+%            if (a_upper_v(oi) > thres_test & a_lower_v(oi) > thres_test & a_upper_v(oi-1)-a_lower_v(oi-1) < thres_test & a_upper_v(oi) - a_lower_v(oi) > thres_test)
+            put(o, minimum_unit, oi, owarine(oi)+thres_sl, owarine(oi)-60);
         end
-        if (a_upper_v(oi-1)-a_lower_v(oi-1) > -0.5 & a_upper_v(oi) - a_lower_v(oi) < -0.5)
-%            if (a_upper_v(oi) < -0.5 & a_lower_v(oi) < -0.5 & a_upper_v(oi-1)-a_lower_v(oi-1) > -0.5 & a_upper_v(oi) - a_lower_v(oi) < -0.5)
-            call(o, minimum_unit, oi, owarine(oi)-40, owarine(oi)+60); 
+        if (a_upper_v(oi-1)-a_lower_v(oi-1) > -thres_test & a_upper_v(oi) - a_lower_v(oi) < -thres_test)
+%            if (a_upper_v(oi) < -thres_test & a_lower_v(oi) < -thres_test & a_upper_v(oi-1)-a_lower_v(oi-1) > -thres_test & a_upper_v(oi) - a_lower_v(oi) < -thres_test)
+            call(o, minimum_unit, oi, owarine(oi)-thres_sl, owarine(oi)+60); 
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%
@@ -272,7 +274,10 @@ profit = money_end - money_first;
 gap = owarine(end) - owarine(1);
 
 % Print results
-printf('%s %f %d %d %f\n', filename, profit+commission, trade_num, gap, gap/owarine(1));
+printf('%s %f %d %d %f %.1f %d\n', filename, profit+commission, trade_num, gap, gap/owarine(1), thres_test, thres_sl);
 
 
+end
+
+end
 end
