@@ -1,7 +1,11 @@
-for thres_test = [0.1:0.1:0.6] % 元は0.5
-for thres_sl = [10:10:100] % 元は40
+%thres_test_range = [0.1:0.1:0.6]; % 元は0.5
+%thres_sl_range = [10:10:100]; % 元は40
+thres_test_range = [0.1:0.1:0.6]; % 元は0.5
+thres_sl_range = [10:10:100]; % 元は40
+for thres_test = thres_test_range
+for thres_sl = thres_sl_range
 
-visualize_flag = 0;
+visualize_flag = 1;
 visualize_movie_flag = 0;
 
 addpath('~/git/sample/octave');
@@ -29,97 +33,181 @@ put_timing = [];
 
 stocks = {};
 
-function ret = amount()
-    global money_first; global money; global volume; global trade_num, global stocks;
+function ret = MarketCapitalization()
+    global stocks;
     ret = 0;
     for s = stocks
         ret += (s.price * s.num);
     end
 end
 
+function ret = StockNum()
+    global stocks;
+    ret = 0;
+    for s = stocks
+        ret += s.num;
+    end
+end
+
+function ret = StockIndexWithLowestSL()
+    global money_first; global money; global volume; global trade_num, global stocks;
+    ret = -1;
+    lowest = 1e12;
+    si = 1;
+    for s = stocks
+        if (lowest > s.sl)
+            lowest = s.sl;
+            ret = si;
+        end
+        si++;
+    end
+end
+
+function ret = StockIndexWithHighestSL()
+    global money_first; global money; global volume; global trade_num, global stocks;
+    ret = -1;
+    highest = -1;
+    si = 1;
+    for s = stocks
+        if (highest < s.sl)
+            highest = s.sl;
+            ret = si;
+        end
+        si++;
+    end
+end
+
+function ret = StockIndexWithLowestSL()
+    global money_first; global money; global volume; global trade_num, global stocks;
+    ret = -1;
+    lowest = 1e12;
+    si = 1;
+    for s = stocks
+        if (lowest > s.sl)
+            lowest = s.sl;
+            ret = si;
+        end
+        si++;
+    end
+end
+
+
+function deleteStock(index)
+    global stocks;
+    stocks(index) = [];
+end
+
 function ret = call(price, num, oi, sl, tp)
     global money_first; global money; global volume; global trade_num, global stocks; global put_timing; global call_timing;
 
-	if (num == 0 | money < abs(amount() + price * num)) % Credit limit TODO
+	if (num == 0 | money < MarketCapitalization() + price * num)
         ret = 1;
         return;
     end
-    volume += price * num;
-    trade_num++;
-    
-    stock.price = price; stock.num = num; stock.minites = oi;
-    stock.tp = tp; stock.sl = sl;
-    stocks = [stocks stock];
 
-    printf('#call %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
+    while (num & StockNum() < 0)
+        buying_num = min(-stocks(StockIndexWithLowestSL()).num, num);
+        num -= buying_num;
+        money += (stocks(StockIndexWithLowestSL()).price - price) * buying_num;
+        if (buying_num >= stocks(StockIndexWithLowestSL()).num)
+            deleteStock(StockIndexWithLowestSL());
+        else
+            stocks(StockIndexWithLowestSL()).num += buying_num;
+        end
+        printf('#ShortCover %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
+    end
+    
+    if (num > 0)
+        stock.price = price; stock.num = -num; stock.minites = oi;
+        stock.tp = tp; stock.sl = sl;
+        stocks = [stocks stock];
+        printf('#MarginBuy %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
+    end
+
     call_timing = [call_timing, oi];
     ret = 0;
 end
 
 function ret = put(price, num, oi, sl, tp)
     global money_first; global money; global volume; global trade_num; global stocks; global put_timing; global call_timing;
-	if (num == 0 | money < abs(amount() - price * num)) % Credit limit TODO
+	if (num == 0 | money < -MarketCapitalization() + price * num) % Credit limit TODO
         ret = 1;
         return;
     end
-    volume += price * num;
-    trade_num++;
 
-    stock.price = price; stock.num = -num; stock.minites = oi;
-    stock.tp = tp; stock.sl = sl;
-    stocks = [stocks stock];
+    while (num & StockNum() > 0)
+        selling_num = min(stocks(StockIndexWithHighestSL()).num, num);
+        num -= selling_num;
+        money += (price - stocks(StockIndexWithHighestSL()).price) * selling_num;
+        if (selling_num >= stocks(StockIndexWithHighestSL()).num)
+            deleteStock(StockIndexWithHighestSL());
+        else
+            stocks(StockIndexWithHighestSL()).num -= selling_num;
+        end
+        printf('#MarginSell %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
+    end
+    
+    if (num > 0)
+        stock.price = price; stock.num = -num; stock.minites = oi;
+        stock.tp = tp; stock.sl = sl;
+        stocks = [stocks stock];
+        printf('#ShortSell %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
+    end
 
-    printf('#put %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
     put_timing = [put_timing, oi];
     ret = 0;
 end
 
-function resolveStock(index, price)
-    global money_first; global money; global volume; global trade_num; global stocks;
+function resolveStock(index, price, timing)
+    global money_first; global money; global volume; global trade_num; global stocks; global put_timing; global call_timing;
     money += stocks(index).num * (price - stocks(index).price);
     volume += price * stocks(index).num;
     trade_num++;
 
+    if (stocks(index).num > 0)
+        put_timing = [put_timing, timing];
+    else
+        call_timing = [call_timing, timing];
+    end
     printf('#resolve %d stocks @ %f\n', stocks(index).num, price);
-    stocks(index) = [];
 end
 
-function obligeTrading(price)
+function obligeTrading(price, timing)
     global stocks;
     si = 0;
     while size(stocks, 2) > 0
-        resolveStock(1, price);
+        resolveStock(1, price, timing);
     end
 end
 
-function takeProfit(price)
+function takeProfit(price, oi)
     global stocks;
     si = 0;
     for s = stocks
         si++;
         if (s.num > 0 & price > s.tp)
-            resolveStock(si, price);
+            resolveStock(si, price, oi);
             printf('#takeProfit %d stocks @ %f > %f\n', s.num, price, s.tp);
             si = 0;
         elseif (s.num < 0 & price < s.tp)
-            resolveStock(si, price);
+            resolveStock(si, price, oi);
             printf('#takeProfit %d stocks @ %f < %f\n', s.num, price, s.tp);
             si = 0;
         end
     end
 end
 
-function stopLoss(price)
+function stopLoss(price, oi)
     global stocks;
     si = 0;
     for s = stocks
         si++;
         if (s.num > 0 & price < s.sl)
-            resolveStock(si, price);
+            resolveStock(si, price, oi);
             printf('#stopLoss %d stocks @ %f < %f\n', s.num, price, s.sl);
             si = 0;
         elseif(s.num < 0 & price > s.sl)
-            resolveStock(si, price);
+            resolveStock(si, price, oi);
             printf('#stopLoss %d stocks @ %f > %f\n', s.num, price, s.sl);
             si = 0;
         end
@@ -160,8 +248,8 @@ if (visualize_flag)
 end
 for oi = 1:size(owarine)
 	o = owarine(oi);
-    stopLoss(o);
-    takeProfit(o);
+    stopLoss(o, oi);
+    takeProfit(o, oi);
     len = 30; 
     coeff = 10; % あんまりいじらないこと
     if (oi >= len+1 & is_valid(oi) & is_valid(oi-len))
@@ -257,12 +345,8 @@ for oi = 1:size(owarine)
         end
     end
 end
-if (visualize_flag)
-    pause;
-end
-
 % Obliged Trade
-obligeTrading(owarine(end));
+obligeTrading(owarine(end), oi);
 
 % Commition
 commission = getCommission(volume);
@@ -275,6 +359,10 @@ gap = owarine(end) - owarine(1);
 
 % Print results
 printf('%s %f %d %d %f %.1f %d\n', filename, profit+commission, trade_num, gap, gap/owarine(1), thres_test, thres_sl);
+
+if (visualize_flag)
+    pause;
+end
 
 
 end
