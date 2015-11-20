@@ -1,5 +1,3 @@
-%thres_test_range = [0.1:0.1:0.6]; % 元は0.5
-%thres_sl_range = [10:10:100]; % 元は40
 thres_test_range = [0.1:0.1:0.6]; % 元は0.5
 thres_sl_range = [10:10:100]; % 元は40
 for thres_test = thres_test_range
@@ -20,7 +18,7 @@ fileno = 0;
 for filename_cell = filenames
 fileno++; fprintf(stderr, '%d/%d\n', fileno, size(filenames, 2));
 filename = filename_cell{1};
-[date, minites, hajimene, takane, yasune, owarine] = readStockCSV(filename);
+[date, minutes, hajimene, takane, yasune, owarine] = readStockCSV(filename);
 
 global money_first; global money; global volume; global trade_num; global call_timing; global put_timing;
 money_first = 3000000; % [yen]
@@ -92,6 +90,14 @@ function ret = StockIndexWithLowestSL()
 end
 
 
+function printStock()
+    printf('# print stock\n');
+    global stocks;
+    for s = stocks
+        printf('%d %d %d %d %d\n', s.price, s.num, s.minutes, s.tp, s.sl);
+    end
+end
+
 function deleteStock(index)
     global stocks;
     stocks(index) = [];
@@ -105,20 +111,22 @@ function ret = call(price, num, oi, sl, tp)
         return;
     end
 
+    % 信用売り決済
     while (num & StockNum() < 0)
-        buying_num = min(-stocks(StockIndexWithLowestSL()).num, num);
+        buying_num = min(-stocks(StockIndexWithHighestSL()).num, num);
         num -= buying_num;
-        money += (stocks(StockIndexWithLowestSL()).price - price) * buying_num;
-        if (buying_num >= stocks(StockIndexWithLowestSL()).num)
-            deleteStock(StockIndexWithLowestSL());
+        money += (stocks(StockIndexWithHighestSL()).price - price) * buying_num;
+        if (buying_num >= stocks(StockIndexWithHighestSL()).num)
+            deleteStock(StockIndexWithHighestSL());
         else
-            stocks(StockIndexWithLowestSL()).num += buying_num;
+            stocks(StockIndexWithHighestSL()).num += buying_num;
         end
         printf('#ShortCover %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
     end
     
+    % 信用買新規建
     if (num > 0)
-        stock.price = price; stock.num = -num; stock.minites = oi;
+        stock.price = price; stock.num = num; stock.minutes = oi;
         stock.tp = tp; stock.sl = sl;
         stocks = [stocks stock];
         printf('#MarginBuy %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
@@ -135,20 +143,22 @@ function ret = put(price, num, oi, sl, tp)
         return;
     end
 
+    % 信用買い決済
     while (num & StockNum() > 0)
-        selling_num = min(stocks(StockIndexWithHighestSL()).num, num);
+        selling_num = min(stocks(StockIndexWithLowestSL()).num, num);
         num -= selling_num;
-        money += (price - stocks(StockIndexWithHighestSL()).price) * selling_num;
-        if (selling_num >= stocks(StockIndexWithHighestSL()).num)
-            deleteStock(StockIndexWithHighestSL());
+        money += (price - stocks(StockIndexWithLowestSL()).price) * selling_num;
+        if (selling_num >= stocks(StockIndexWithLowestSL()).num)
+            deleteStock(StockIndexWithLowestSL());
         else
-            stocks(StockIndexWithHighestSL()).num -= selling_num;
+            stocks(StockIndexWithLowestSL()).num -= selling_num;
         end
         printf('#MarginSell %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
     end
     
+    % 信用売新規建
     if (num > 0)
-        stock.price = price; stock.num = -num; stock.minites = oi;
+        stock.price = price; stock.num = -num; stock.minutes = oi;
         stock.tp = tp; stock.sl = sl;
         stocks = [stocks stock];
         printf('#ShortSell %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
@@ -169,13 +179,16 @@ function resolveStock(index, price, timing)
     else
         call_timing = [call_timing, timing];
     end
+
     printf('#resolve %d stocks @ %f\n', stocks(index).num, price);
+    deleteStock(index);
 end
 
 function obligeTrading(price, timing)
     global stocks;
     si = 0;
     while size(stocks, 2) > 0
+        printf('#ObligeTrade\n');
         resolveStock(1, price, timing);
     end
 end
@@ -233,6 +246,16 @@ function ret = getMarketValue()
         ret += s.price * s.num;
     end
 end
+
+%{
+call(100, minimum_unit, 1, 110, 130); 
+printStock();
+pause
+resolveStock(1, 120, 2);
+printStock();
+money
+pause
+%}
 
 a_upper_v = [];
 a_lower_v = [];
@@ -344,7 +367,9 @@ for oi = 1:size(owarine)
             end
         end
     end
+%    printStock();
 end
+
 % Obliged Trade
 obligeTrading(owarine(end), oi);
 
