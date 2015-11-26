@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
-#define LEASQR_ITER 5  // 精度と計算量の兼ね合い。以前は20だったが…？
-#define LEASQR_LINE_RESOLUTION 100  // 精度と計算量の兼ね合い。以前は20だったが…？
+#define LEASQR_ITER 2
+#define LEASQR_LINE_RESOLUTION 50  // 精度と計算量の兼ね合い。以前は20だったが…？
 #define LEASQR_LINE_SEARCH_DIR_NUM 4
 
 enum {

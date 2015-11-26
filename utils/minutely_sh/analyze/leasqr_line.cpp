@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
 int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int start_index, int len, int dir, double line_coeff, double* a, double* b)
@@ -34,31 +35,37 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
     double absmax_mx = -1e8;
     for (int i = 0; i < len; i++) {
         mean_mx += mx[i];
-        absmax_mx = max(absmax_mx, abs(mx[i]));
     }
     mean_mx /= len;
     for (int i = 0; i < len; i++) {
         mx[i] -= mean_mx;
-        mx[i] /= absmax_mx;
     }
+    for (int i = 0; i < len; i++) 
+        absmax_mx = max(absmax_mx, abs(mx[i]));
+    for (int i = 0; i < len; i++) 
+        mx[i] /= absmax_mx;
 
     double mean_my = 0;
     double absmax_my = -1e8;
     for (int i = 0; i < len; i++) {
         mean_my += my[i];
-        absmax_my = max(absmax_my, abs(my[i]));
     }
     mean_my /= len;
     for (int i = 0; i < len; i++) {
         my[i] -= mean_my;
+    }
+    for (int i = 0; i < len; i++) {
+        absmax_my = max(absmax_my, abs(my[i]));
+    }
+    for (int i = 0; i < len; i++) {
         my[i] /= absmax_my;
     }
 
+//    cout << mean_mx << " " << absmax_mx << " " << mean_my << " " << absmax_my << endl;
     /*
-    cout << mean_mx << " " << absmax_mx << " " << mean_my << " " << absmax_my << endl;
     for (int i = 0; i < len; i++) 
         cout << mx[i] << " " << my[i] << endl;
-    */
+        */
 
     // Initial Value
     double max_my = -1e8;
@@ -81,8 +88,8 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
     double search_dir_a[LEASQR_LINE_SEARCH_DIR_NUM]={1,-1,0,0};
     double search_dir_b[LEASQR_LINE_SEARCH_DIR_NUM]={0,0,1,-1};
     for (int i = 0; i < LEASQR_LINE_SEARCH_DIR_NUM*LEASQR_LINE_RESOLUTION*LEASQR_ITER; i++) {
-        double cand_a = *a + search_dir_a[i % LEASQR_LINE_SEARCH_DIR_NUM] / (LEASQR_LINE_SEARCH_DIR_NUM*LEASQR_LINE_RESOLUTION);
-        double cand_b = *b + search_dir_b[i % LEASQR_LINE_SEARCH_DIR_NUM] / (LEASQR_LINE_SEARCH_DIR_NUM*LEASQR_LINE_RESOLUTION);
+        double cand_a = *a + search_dir_a[i % LEASQR_LINE_SEARCH_DIR_NUM] / LEASQR_LINE_RESOLUTION;
+        double cand_b = *b + search_dir_b[i % LEASQR_LINE_SEARCH_DIR_NUM] / LEASQR_LINE_RESOLUTION;
         double vysq = 0;
         for (int j = 0; j < len; j++) {
             double vy = cand_a * mx[j] + cand_b - my[j];
@@ -99,13 +106,6 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
             min_vysq = vysq;
             *a = cand_a;
             *b = cand_b;
-        }
-        if (prev_min_vysq - min_vysq < 1e-4) {
-            nochange++;
-            if (nochange > LEASQR_LINE_SEARCH_DIR_NUM * 8)
-                break;
-        } else {
-            nochange = 0;
         }
     }
 //    cout << *a << " " << *b << "#coeff" << endl;

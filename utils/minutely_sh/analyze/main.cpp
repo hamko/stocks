@@ -17,7 +17,6 @@ int main(void)
 #pragma omp parallel for
     for (int i = 0; i < (int)filenames.size(); i++) {
         StockMinute sm(7203, "Toyota", filenames[i]);
-
         for (int t = 0; t < 330; t++) {
             double a, b;
             leasqr_line(sm.m_minute, sm.m_owarine, t, 30, LEASQR_LINE_LOWER, 10, &a, &b);
@@ -27,7 +26,7 @@ int main(void)
         }
     }
     double time = stopwatch_end(0);
-    cout << time << " #endtime" << endl;
+//    cout << time << " #endtime" << endl;
 
     return 0;
 }

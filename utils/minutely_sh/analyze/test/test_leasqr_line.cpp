@@ -20,32 +20,39 @@ class testLeasqrLine : public TestFixture {
         x.clear(); y.clear();
         x = {-1, 1}; y = {0, 0};
         leasqr_line(x, y, 0, 2, LEASQR_LINE_UPPER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_LOWER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_UPPER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_LOWER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
 
         x.clear(); y.clear();
         x = {-1, 1}; y = {-2, 2};
         leasqr_line(x, y, 0, 2, LEASQR_LINE_UPPER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_LOWER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_UPPER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, 2, LEASQR_LINE_LOWER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(2, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
+
+        x.clear(); y.clear();
+        x = {-1, 1}; y = {-100, 100};
+        leasqr_line(x, y, 0, 2, LEASQR_LINE_UPPER, 1, &a, &b);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(100, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
+
     }
 
     void test_threepoints_line() {
@@ -53,19 +60,28 @@ class testLeasqrLine : public TestFixture {
         double a, b;
 
         x.clear(); y.clear();
+        x = {30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,};
+        y = {7936,7938,7935,7942,7940,7935,7937,7938,7940,7939,7936,7936,7937,7937,7938,7940,7937,7934,7935,7938,7938,7939,7939,7940,7935,7935,7935,7938,7933,7934,};
+        leasqr_line(x, y, 0, x.size(), LEASQR_LINE_UPPER, 1, &a, &b);
+        cout << a << " " << b  << "#BBBBBBBBBB" << endl;
+        leasqr_line(x, y, 0, x.size(), LEASQR_LINE_LOWER, 1, &a, &b);
+        cout << a << " " << b  << "#BBBBBBBBBB" << endl;
+
+        x.clear(); y.clear();
         x = {-2, -1, 1, 2}; y = {-3, 0, 0, -3};
         leasqr_line(x, y, 0, x.size(), LEASQR_LINE_LOWER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-3, b, 1e-1);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-3, b, 1e-2);
         leasqr_line(x, y, 0, x.size(), LEASQR_LINE_UPPER, 10, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-1);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, b, 1e-2);
         leasqr_line(x, y, 0, x.size(), LEASQR_LINE_LOWER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.5, b, 1e-1);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.5, b, 1e-2);
         leasqr_line(x, y, 0, x.size(), LEASQR_LINE_UPPER, 1, &a, &b);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.5, b, 1e-1);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0, a, 1e-2);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.5, b, 1e-2);
+
     }
 
 
@@ -93,6 +109,7 @@ class testLeasqrLine : public TestFixture {
 
     public:
     void setUp() { // 始めに呼ばれる
+        srand(time(NULL));
     }
     void tearDown() { //後で呼ばれる
     }
