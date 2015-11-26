@@ -6,11 +6,11 @@ hajimene=data(:, 3);
 takane=data(:, 4);
 yasune=data(:, 5);
 owarine=data(:, 6);
-fliplr(owarine);
-fliplr(minites);
-fliplr(hajimene);
-fliplr(takane);
-fliplr(yasune);
+owarine = flipud(owarine);
+minites = flipud(minites);
+hajimene = flipud(hajimene);
+takane = flipud(takane);
+yasune = flipud(yasune);
 
 % break time compensation TODO use ending price!
 for i_inv = 2:size(owarine)

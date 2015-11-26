@@ -30,28 +30,30 @@ StockMinute::StockMinute(int code, string name, string filename)
             this->m_hajimene.push_back(stod(data[2]));
         else 
             this->m_hajimene.push_back(NAN);
-        reverse(this->m_hajimene.begin(), this->m_hajimene.end());
 
         if (data[3].find("-")) 
             this->m_takane.push_back(stod(data[3]));
         else 
             this->m_takane.push_back(NAN);
-        reverse(this->m_takane.begin(), this->m_takane.end());
 
         if (data[4].find("-")) 
             this->m_yasune.push_back(stod(data[4]));
         else 
             this->m_yasune.push_back(NAN);
-        reverse(this->m_yasune.begin(), this->m_yasune.end());
 
         if (data[5].find("-")) 
             this->m_owarine.push_back(stod(data[5]));
         else 
             this->m_owarine.push_back(NAN);
-        reverse(this->m_owarine.begin(), this->m_owarine.end());
 
         this->m_volume.push_back(stod(data[6]));
         this->m_volume_price.push_back(stod(data[7]));
         t++;
     }
+    reverse(this->m_hajimene.begin(), this->m_hajimene.end());
+    reverse(this->m_owarine.begin(), this->m_owarine.end());
+    reverse(this->m_yasune.begin(), this->m_yasune.end());
+    reverse(this->m_takane.begin(), this->m_takane.end());
+    reverse(this->m_volume.begin(), this->m_volume.end());
+    reverse(this->m_volume_price.begin(), this->m_volume_price.end());
 }
