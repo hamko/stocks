@@ -20,8 +20,11 @@ int main(void)
     // parameters
     vector<double> thres_test_range = {.1,.2,.3,.4,.5,.6};
     vector<double> thres_sl_range = {10,20,30,40,50,60,70,80,90,100};
+    vector<int> len_range = {10,20,30,40,50,60,70,80,90,100};
 //    vector<double> thres_test_range = {.1};
 //    vector<double> thres_sl_range = {10};
+    for (int len_i = 0; (size_t)len_i < len_range.size(); len_i++) {
+    int len = len_range[len_i];
     for (int thres_test_i = 0; (size_t)thres_test_i < thres_test_range.size(); thres_test_i++) {
     double thres_test = thres_test_range[thres_test_i];
     cerr << thres_test_i+1 << "/" << thres_test_range.size() << "\r" << endl;
@@ -34,8 +37,8 @@ int main(void)
 #pragma omp parallel for
     for (int i = 0; i < (int)filenames.size(); i++) {
         int code = 7203;
-        int minimum_unit = 300;
-        Agent agent(3000000);
+        int minimum_unit = 500;
+        Agent agent(4000000);
         agent.addHoldingStock(new HoldingStock(code));
         StockMinute sm(code, "Toyota", filenames[i]);
         double a_l_prev = NAN, b_l_prev = NAN, a_u_prev = NAN, b_u_prev = NAN;
@@ -43,21 +46,20 @@ int main(void)
             double price = sm.m_owarine[t];
             if (std::isnan(price))
                 continue;
-            int len = 30;
             if (t >= len) {
                 int ret;
                 double a_l, b_l;
-                ret = leasqr_line(sm.m_minute, sm.m_owarine, t-30, len, LEASQR_LINE_LOWER, 10, &a_l, &b_l);
+                ret = leasqr_line(sm.m_minute, sm.m_owarine, t-len, len, LEASQR_LINE_LOWER, 10, &a_l, &b_l);
                 if (ret) continue;
                 double a_u, b_u;
-                ret = leasqr_line(sm.m_minute, sm.m_owarine, t-30, len, LEASQR_LINE_UPPER, 10, &a_u, &b_u);
+                ret = leasqr_line(sm.m_minute, sm.m_owarine, t-len, len, LEASQR_LINE_UPPER, 10, &a_u, &b_u);
                 if (ret) continue;
 
                 if (a_u_prev-a_l_prev < thres_test && a_u - a_l > thres_test) {
-                    agent.sell(code, t, minimum_unit, price, price+thres_sl, price-60);
+                    agent.buy(code, t, minimum_unit, price, price-thres_sl, price+60);
                 }
                 if (a_u_prev-a_l_prev > -thres_test && a_u - a_l < -thres_test) {
-                    agent.buy(code, t, minimum_unit, price, price-thres_sl, price+60);
+                    agent.sell(code, t, minimum_unit, price, price+thres_sl, price-60);
                 }
 
                 a_u_prev = a_u; a_l_prev = a_l;
@@ -74,9 +76,9 @@ int main(void)
         sum_profit += agent.getProfit();
         sum_trade_num += agent.getTradeNum();
     }
-    cout << sum_profit << " " << sum_trade_num << " " << sum_profit / sum_trade_num<< " " << thres_test << " " << thres_sl << endl;
+    cout << sum_profit << " " << sum_trade_num << " " << sum_profit / sum_trade_num<< " " << thres_test << " " << thres_sl << " " << len << endl;
 
-    }} // parameters
+    }}} // parameters
 
     double time = stopwatch_end(0);
     //    cout << time << " #endtime" << endl;
