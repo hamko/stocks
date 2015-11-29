@@ -22,8 +22,10 @@ int main(void)
     StockMinute sm(code, "Toyota");
 
     double a_l_prev = NAN, b_l_prev = NAN, a_u_prev = NAN, b_u_prev = NAN;
+    // TODO ここに日々きちんと動かすための処理
     for (int t = 0; t < 360; t++) {
-        int hour = 1, minute = 6;
+        int hour = 9, minute = 0;
+        int hour_end = 15, minute_end = 0;
         time_t now; struct tm *pnow; now = time(NULL); pnow = localtime(&now);
         while ((pnow->tm_hour-hour)*60+(pnow->tm_min-minute) < t) {
             time_t now = time(NULL); struct tm *pnow = localtime(&now);
@@ -35,7 +37,7 @@ int main(void)
         if (std::isnan(price))
             continue;
 
-        int len = 30;
+        int len = 5; 
         if (sm.size() >= len) {
             int ret;
             double a_l, b_l;
@@ -46,14 +48,14 @@ int main(void)
             if (ret) continue;
 
             if (a_u_prev-a_l_prev < thres_test && a_u - a_l > thres_test) {
-                agent.sell(code, t, minimum_unit, price, price+thres_sl, price-60);
-                system("echo 日々乃ひいなです！ブレイクアウトにつき、トヨタを売ってください！ >> tmp");
-                system("cat tmp | mail -s BUY wakataberyo@gmail.com");
+                agent.buy(code, t, minimum_unit, price, price-thres_sl, price+60);
+                system("echo トヨタを買ってください！ブレイクアウトしました！日々乃でした！>> tmp");
+                system("cat tmp | mail -s SELL wakataberyo@gmail.com");
                 system("rm tmp");
             }
             if (a_u_prev-a_l_prev > -thres_test && a_u - a_l < -thres_test) {
-                agent.buy(code, t, minimum_unit, price, price-thres_sl, price+60);
-                system("echo 日々乃ひいなです！ブレイクアウトにつき、トヨタを買ってください！ >> tmp");
+                agent.sell(code, t, minimum_unit, price, price+thres_sl, price-60);
+                system("echo トヨタを売ってください！ブレイクアウトしました！日々乃でした！>> tmp");
                 system("cat tmp | mail -s SELL wakataberyo@gmail.com");
                 system("rm tmp");
             }
@@ -66,12 +68,18 @@ int main(void)
             system("rm tmp");
         }
 
-        agent.tradeBySLTP(code, t, price);
-
-        //            cout << agent.getHoldingStock(7203)->m_num << " " <<  agent.getHoldingStock(7203)->m_price << endl;
+        if (agent.tradeBySLTP(code, t, price) != 0) {
+            system("echo ポジション手じまってください！損切りもしくは利食い発生です！日々乃でした！ >> tmp");
+            system("cat tmp | mail -s test wakataberyo@gmail.com");
+            system("rm tmp");
+        }
     }
     double last_price = sm.m_owarine[sm.m_owarine.size()-1];
-    agent.ForcedSettlement(code, sm.m_owarine.size()-1, last_price);
+    if (agent.ForcedSettlement(code, sm.m_owarine.size()-1, last_price) != 0) {
+            system("echo ポジション手じまってください！一日の終わりの手仕舞いです！日々乃でした！ >> tmp");
+            system("cat tmp | mail -s test wakataberyo@gmail.com");
+            system("rm tmp");
+    }
 
     return 0;
 }

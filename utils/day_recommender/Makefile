@@ -6,7 +6,7 @@ OBJS = $(CSRCS:.c=.o) $(CXXSRCS:.cpp=.o)
 HEADS = $(shell ls *.h 2> /dev/null) $(shell ls *.hpp 2> /dev/null)
 
 CFLAGS = -I../libstock -g -O3 -Wall -std=c++0x -fopenmp -I..
-LFLAGS = ../libstock/libstock.a -lm -lcppunit -ltidy -lcurl
+LFLAGS = ../libstock/libstock.a -lm -ltidy -lcurl
 
 PROD = ./a.out
 

@@ -18,7 +18,7 @@ public:
     int buy(int code, double time, double num, double price, double sl, double tp);
     int sell(int code, double time, double num, double price, double sl, double tp);
     double getProfit(void);
-    void ForcedSettlement(int code, double time, double price);
-    void tradeBySLTP(int code, double time, double price);
+    double ForcedSettlement(int code, double time, double price);
+    double tradeBySLTP(int code, double time, double price);
     int getTradeNum(void);
 };

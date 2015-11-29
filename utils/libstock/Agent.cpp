@@ -71,20 +71,22 @@ double Agent::getProfit(void)
     return m_profit;
 }
 
-void Agent::ForcedSettlement(int code, double time, double price)
+double Agent::ForcedSettlement(int code, double time, double price)
 {
     double profit = m_stocks[code]->ForcedSettlement(price);
     m_profit += profit;
     if (profit) 
         m_selling_timing.push_back(time);
+    return profit;
 }
 
-void Agent::tradeBySLTP(int code, double time, double price)
+double Agent::tradeBySLTP(int code, double time, double price)
 {
     double profit = m_stocks[code]->tradeBySLTP(price);
     m_profit += profit;
     if (profit) 
         m_selling_timing.push_back(time);
+    return profit;
 }
 
 int Agent::getTradeNum(void)

@@ -23,7 +23,8 @@ selection = [1, 5, 8, 9, 11, 17, 19];
 #全てソートのキーは，対PER妥当株価騰落率で行なっている．
 
 # 割安注目株(アナリスト5人以上, レーティング4.0以上, PBR, PERともに標準偏差-1.5以下)なもの
-M_Economical = M(M(:, 5) < -1.5 & M(:, 8) < -1.5 & M(:, 9) > 4 & M(:, 11) > 4.0, selection);
+M_Economical = M(M(:, 5) < -1.5 & M(:, 8) < -1.5 & M(:, 9) > 4, selection);
+#M_Economical = M(M(:, 5) < -1.5 & M(:, 8) < -1.5 & M(:, 9) > 4 & M(:, 11) > 4.0, selection);
 M_Economical = sortrows(M_Economical, 6);
 
 # 割高注目株(アナリスト5人以上, PBR, PERともに標準偏差-1.5以下)なもの
