@@ -279,7 +279,6 @@ for oi = 1:size(owarine)
     if (oi >= len+1 & is_valid(oi) & is_valid(oi-len))
         [a_lower, b_lower] = leasqr_line_lib([oi-len:oi]', owarine(oi-len:oi), 0, coeff);
         [a_upper, b_upper] = leasqr_line_lib([oi-len:oi]', owarine(oi-len:oi), 1, coeff);
-        printf('!%d %d %f %f %f %f\n', oi, o, a_lower,b_lower,a_upper,b_upper)
         diff_ave = (a_upper-a_lower)*len/2 + (b_upper-b_lower); % 平均上値-下値差
         range_lower = a_lower*oi+b_lower;
         range_upper = a_upper*oi+b_upper;
