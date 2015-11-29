@@ -35,7 +35,7 @@ class testHoldingStock : public TestFixture {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7200, toyota.m_price, 1e-3);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7210, toyota.m_sl, 1e-3);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(7190, toyota.m_tp, 1e-3);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(720000, toyota.getNeededConsignmentGuaranteeMoney(), 1e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-720000, toyota.getNeededConsignmentGuaranteeMoney(), 1e-3);
 
         toyota.sell(100, 3600, 7210, 7190);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(-200, toyota.m_num, 1e-3);

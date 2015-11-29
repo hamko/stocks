@@ -5,6 +5,11 @@
 #include <cmath>
 #include "StockMinute.hpp"
 
+StockMinute::StockMinute(int code, string name) 
+    : m_code(code), m_name(name)
+{
+}
+
 StockMinute::StockMinute(int code, string name, string filename) 
     : m_code(code), m_name(name)
 {
@@ -56,4 +61,15 @@ StockMinute::StockMinute(int code, string name, string filename)
     reverse(this->m_takane.begin(), this->m_takane.end());
     reverse(this->m_volume.begin(), this->m_volume.end());
     reverse(this->m_volume_price.begin(), this->m_volume_price.end());
+}
+
+void StockMinute::addData(double time, double owarine)
+{
+    m_minute.push_back(time);
+    m_owarine.push_back(owarine);
+}
+
+int StockMinute::size(void)
+{
+    return m_minute.size();
 }

@@ -16,5 +16,8 @@ public:
     vector<double> m_owarine;
     vector<double> m_volume;
     vector<double> m_volume_price;
+    void addData(double time, double owarine);
     StockMinute(int code, string name, string filename);
+    StockMinute(int code, string name);
+    int size(void);
 };
