@@ -12,13 +12,28 @@ HoldingStock::HoldingStock(int code)
 
 double HoldingStock::getNeededConsignmentGuaranteeMoney(void)
 {
-    return abs(m_price * m_num);
+    return m_price * m_num;
 }
 
 void HoldingStock::setSLTP(double sl, double tp)
 {
     if (!isnan(sl)) m_sl = sl;
     if (!isnan(tp)) m_tp = tp;
+}
+
+double HoldingStock::expectedConsignment(double num, double price)
+{
+    if (m_num * num < 0) {
+        if (abs(m_num) < abs(num)) { // Holding -200, buy 300
+            return (m_num+num) * price;
+        } else if (m_num + num == 0) { // Holding -200, buy 200
+            return 0;
+        } else { // Holding -200, buy 100
+            return (m_num+num) * m_price;
+        }
+    } else { // Holding 0, buy 300 or Holding 100, buy 300
+        return m_price * m_num + price * num;
+    }
 }
 
 double HoldingStock::trade(double num, double price, double sl, double tp)
@@ -45,7 +60,6 @@ double HoldingStock::trade(double num, double price, double sl, double tp)
         m_num += num;
     }
 
-    std::cerr << m_num << " " << profit << std::endl;
     return profit;
    
 }
@@ -62,8 +76,25 @@ double HoldingStock::sell(double num, double price, double sl, double tp)
 
 void HoldingStock::clear(void)
 {
-    m_num = 0; 
-    m_sl = NAN;
-    m_tp = NAN;
-    m_price = 0;
+    m_num = 0; m_price = 0; m_sl = NAN; m_tp = NAN;
 }
+
+double HoldingStock::ForcedSettlement(double price)
+{
+    return trade(-m_num, price, NAN, NAN);
+}
+
+double HoldingStock::tradeBySLTP(double price)
+{
+    double profit = 0;
+    if (!std::isnan(m_sl) && m_num > 0 && m_sl >= price)
+        profit += ForcedSettlement(price);
+    if (!std::isnan(m_sl) && m_num > 0 && m_tp <= price)
+        profit += ForcedSettlement(price);
+    if (!std::isnan(m_sl) && m_num < 0 && m_sl <= price)
+        profit += ForcedSettlement(price);
+    if (!std::isnan(m_sl) && m_num < 0 && m_tp >= price)
+        profit += ForcedSettlement(price);
+    return profit;
+}
+

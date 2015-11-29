@@ -27,19 +27,19 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
     vector<double> mx;
     vector<double> my;
     for (int i = start_index; i < start_index + len; i++) {
+        if (std::isnan(mx_org[i]) || std::isnan(my_org[i]))
+            return 1;
         mx.push_back(mx_org[i]);
         my.push_back(my_org[i]);
     }
 
     double mean_mx = 0;
     double absmax_mx = -1e8;
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) 
         mean_mx += mx[i];
-    }
     mean_mx /= len;
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) 
         mx[i] -= mean_mx;
-    }
     for (int i = 0; i < len; i++) 
         absmax_mx = max(absmax_mx, abs(mx[i]));
     for (int i = 0; i < len; i++) 
@@ -47,25 +47,15 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
 
     double mean_my = 0;
     double absmax_my = -1e8;
-    for (int i = 0; i < len; i++) {
-        mean_my += my[i];
-    }
-    mean_my /= len;
-    for (int i = 0; i < len; i++) {
-        my[i] -= mean_my;
-    }
-    for (int i = 0; i < len; i++) {
-        absmax_my = max(absmax_my, abs(my[i]));
-    }
-    for (int i = 0; i < len; i++) {
-        my[i] /= absmax_my;
-    }
-
-//    cout << mean_mx << " " << absmax_mx << " " << mean_my << " " << absmax_my << endl;
-    /*
     for (int i = 0; i < len; i++) 
-        cout << mx[i] << " " << my[i] << endl;
-        */
+        mean_my += my[i];
+    mean_my /= len;
+    for (int i = 0; i < len; i++) 
+        my[i] -= mean_my;
+    for (int i = 0; i < len; i++) 
+        absmax_my = max(absmax_my, abs(my[i]));
+    for (int i = 0; i < len; i++) 
+        my[i] /= absmax_my;
 
     // Initial Value
     double max_my = -1e8;
@@ -82,9 +72,7 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
         *b = max_my;
     }
 
-    double prev_min_vysq = 1e8;
     double min_vysq = 1e8;
-    int nochange = 0;
     double search_dir_a[LEASQR_LINE_SEARCH_DIR_NUM]={1,-1,0,0};
     double search_dir_b[LEASQR_LINE_SEARCH_DIR_NUM]={0,0,1,-1};
     for (int i = 0; i < LEASQR_LINE_SEARCH_DIR_NUM*LEASQR_LINE_RESOLUTION*LEASQR_ITER; i++) {
@@ -99,16 +87,13 @@ int leasqr_line(const vector<double>& mx_org, const vector<double>& my_org, int 
                 vy *= line_coeff;
             vysq += vy * vy;
         }
-//        cout << vysq << " " << cand_a << " " << cand_b << endl;
      
-        prev_min_vysq = min_vysq;
         if (min_vysq > vysq) {
             min_vysq = vysq;
             *a = cand_a;
             *b = cand_b;
         }
     }
-//    cout << *a << " " << *b << "#coeff" << endl;
 
     // yo = a * xo + b
     // (y - ym) / ys = a * (x - xm) / xs + b
