@@ -18,11 +18,12 @@ int main(void)
     stopwatch_start(0);
 
     // parameters
-    vector<double> thres_test_range = {.1,.2,.3,.4,.5,.6};
-    vector<double> thres_sl_range = {10,20,30,40,50,60,70,80,90,100};
-    vector<int> len_range = {10,20,30,40,50,60,70,80,90,100};
-//    vector<double> thres_test_range = {.1};
-//    vector<double> thres_sl_range = {10};
+//    vector<double> thres_test_range = {.1,.2,.3,.4,.5,.6};
+//    vector<double> thres_sl_range = {10,20,30,40,50,60,70,80,90,100};
+//    vector<int> len_range = {10,20,30,40,50,60,70,80,90,100};
+    vector<double> thres_test_range = {.3};
+    vector<double> thres_sl_range = {60};
+    vector<int> len_range = {80};
     for (int len_i = 0; (size_t)len_i < len_range.size(); len_i++) {
     int len = len_range[len_i];
     for (int thres_test_i = 0; (size_t)thres_test_i < thres_test_range.size(); thres_test_i++) {
