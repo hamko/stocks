@@ -10,6 +10,9 @@
 #include "YahooStocksRealtime.hpp"
 using namespace std;
 
+double thres_test = 0.3;
+double thres_sl = 60;
+int len = 80; 
 int hour = 9, minute = 0;
 int hour_end = 15, minute_end = 0;
 void waitOpening(void)
@@ -42,21 +45,14 @@ void mail(double profit, string comment, string title)
     system(os2.str().c_str());
 
     system("rm tmp");
+
+    cout << profit << " " << comment << " " << title << "#mail" << endl;
 }
 
 
 #ifndef TEST
 int main(void)
 { 
-    double thres_test = 0.3;
-    double thres_sl = 60;
-    int len = 80; 
-/*
-    double thres_test = 0.3;
-    double thres_sl = 60;
-    int len = 10; 
-*/
-
     int code = 7203;
     int minimum_unit = 400;
     Agent agent(4000000);
@@ -105,7 +101,7 @@ int main(void)
 */
 
             if (a_u_prev-a_l_prev < thres_test && a_u - a_l > thres_test) {
-                int failed = agent.buy(code, t, minimum_unit, price, price+thres_sl, price-60);
+                int failed = agent.buy(code, t, minimum_unit, price, price-thres_sl, price+60);
                 if (!failed) {
 		    mail(agent.getProfit(), "トヨタを買ってください！ブレイクアウトしました！", "Buy");
                 }
@@ -125,11 +121,14 @@ int main(void)
         if (agent.tradeBySLTP(code, t, price) != 0) {
 	    mail(agent.getProfit(), "ポジション手じまってください！損切りもしくは利食い発生です！", "SLTP");
         }
+
+        cout << price << " " << agent.getProfit() << " " << agent.getUsingConsignmentGuaranteeMoney() << " " << agent.getHoldingStock(7203)->m_num << " " << agent.getHoldingStock(7203)->getNeededConsignmentGuaranteeMoney() << " " << agent.getHoldingStock(7203)->m_price << "#debug" << endl;
     }
     double last_price = sm.m_owarine[sm.m_owarine.size()-1];
     if (agent.ForcedSettlement(code, sm.m_owarine.size()-1, last_price) != 0) {
-        mail(agent.getProfit(), "ポジション手じまってください！一日の終わりの手仕舞いです！", "Closing");
+        mail(agent.getProfit(), "ポジション手じまってください！一日の終わりの手仕舞いです！", "ClosingTrade");
     }
+    mail(agent.getProfit(), "今日の取引は終わりです！", "Closing");
 
 
     sleep(3600); // to make sure closing

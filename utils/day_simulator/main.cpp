@@ -11,19 +11,21 @@ using namespace std;
 #ifndef TEST
 int main(void)
 {
-//    vector<string> filenames =  {"../minutely_sh/7203/20150930"};
-    vector<string> filenames =  {"../minutely_sh/7203/20150818", "../minutely_sh/7203/20150907", "../minutely_sh/7203/20150930", "../minutely_sh/7203/20151022",  "../minutely_sh/7203/20150819", "../minutely_sh/7203/20150908", "../minutely_sh/7203/20151001", "../minutely_sh/7203/20151023", "../minutely_sh/7203/20150820", "../minutely_sh/7203/20150909", "../minutely_sh/7203/20151002", "../minutely_sh/7203/20151026", "../minutely_sh/7203/20150821", "../minutely_sh/7203/20150910", "../minutely_sh/7203/20151005", "../minutely_sh/7203/20151027", "../minutely_sh/7203/20150824", "../minutely_sh/7203/20150911", "../minutely_sh/7203/20151006", "../minutely_sh/7203/20151028", "../minutely_sh/7203/20150825", "../minutely_sh/7203/20150914", "../minutely_sh/7203/20151007", "../minutely_sh/7203/20151029", "../minutely_sh/7203/20150826", "../minutely_sh/7203/20150915", "../minutely_sh/7203/20151008", "../minutely_sh/7203/20151030", "../minutely_sh/7203/20150827", "../minutely_sh/7203/20150916", "../minutely_sh/7203/20151009", "../minutely_sh/7203/20151102", "../minutely_sh/7203/20150828", "../minutely_sh/7203/20150917", "../minutely_sh/7203/20151013", "../minutely_sh/7203/20151104", "../minutely_sh/7203/20150831", "../minutely_sh/7203/20150918", "../minutely_sh/7203/20151014", "../minutely_sh/7203/20151105", "../minutely_sh/7203/20150901", "../minutely_sh/7203/20150924", "../minutely_sh/7203/20151015", "../minutely_sh/7203/20151106", "../minutely_sh/7203/20150902", "../minutely_sh/7203/20150925", "../minutely_sh/7203/20151016", "../minutely_sh/7203/20151109", "../minutely_sh/7203/20150903", "../minutely_sh/7203/20150928", "../minutely_sh/7203/20151020", "../minutely_sh/7203/20151110", "../minutely_sh/7203/20150904", "../minutely_sh/7203/20150929", "../minutely_sh/7203/20151021"};
+//    vector<string> filenames =  {"../minutely_sh/7203/20151202"};
+    vector<string> filenames = { "../minutely_sh/7203/20150818", "../minutely_sh/7203/20150819", "../minutely_sh/7203/20150820", "../minutely_sh/7203/20150821", "../minutely_sh/7203/20150824", "../minutely_sh/7203/20150825", "../minutely_sh/7203/20150826", "../minutely_sh/7203/20150827", "../minutely_sh/7203/20150828", "../minutely_sh/7203/20150831", "../minutely_sh/7203/20150901", "../minutely_sh/7203/20150902", "../minutely_sh/7203/20150903", "../minutely_sh/7203/20150904", "../minutely_sh/7203/20150907", "../minutely_sh/7203/20150908", "../minutely_sh/7203/20150909", "../minutely_sh/7203/20150910", "../minutely_sh/7203/20150911", "../minutely_sh/7203/20150914", "../minutely_sh/7203/20150915", "../minutely_sh/7203/20150916", "../minutely_sh/7203/20150917", "../minutely_sh/7203/20150918", "../minutely_sh/7203/20150924", "../minutely_sh/7203/20150925", "../minutely_sh/7203/20150928", "../minutely_sh/7203/20150929", "../minutely_sh/7203/20150930", "../minutely_sh/7203/20151001", "../minutely_sh/7203/20151002", "../minutely_sh/7203/20151005", "../minutely_sh/7203/20151006", "../minutely_sh/7203/20151007", "../minutely_sh/7203/20151008", "../minutely_sh/7203/20151009", "../minutely_sh/7203/20151013", "../minutely_sh/7203/20151014", "../minutely_sh/7203/20151015", "../minutely_sh/7203/20151016", "../minutely_sh/7203/20151020", "../minutely_sh/7203/20151021", "../minutely_sh/7203/20151022", "../minutely_sh/7203/20151023", "../minutely_sh/7203/20151026", "../minutely_sh/7203/20151027", "../minutely_sh/7203/20151028", "../minutely_sh/7203/20151029", "../minutely_sh/7203/20151030", "../minutely_sh/7203/20151102", "../minutely_sh/7203/20151104", "../minutely_sh/7203/20151105", "../minutely_sh/7203/20151106", "../minutely_sh/7203/20151109", "../minutely_sh/7203/20151110", "../minutely_sh/7203/20151111", "../minutely_sh/7203/20151112", "../minutely_sh/7203/20151113", "../minutely_sh/7203/20151116", "../minutely_sh/7203/20151118", "../minutely_sh/7203/20151119", "../minutely_sh/7203/20151120", "../minutely_sh/7203/20151124", "../minutely_sh/7203/20151125", "../minutely_sh/7203/20151126", "../minutely_sh/7203/20151127", "../minutely_sh/7203/20151130", "../minutely_sh/7203/20151201", "../minutely_sh/7203/20151202", };
 
 
     stopwatch_start(0);
 
     // parameters
-//    vector<double> thres_test_range = {.1,.2,.3,.4,.5,.6};
-//    vector<double> thres_sl_range = {10,20,30,40,50,60,70,80,90,100};
-//    vector<int> len_range = {10,20,30,40,50,60,70,80,90,100};
+    vector<double> thres_test_range = {.1,.2,.3,.4,.5,.6};
+    vector<double> thres_sl_range = {10,20,30,40,50,60,70,80,90,100};
+    vector<int> len_range = {10,20,30,40,50,60,70,80,90,100};
+/*
     vector<double> thres_test_range = {.3};
     vector<double> thres_sl_range = {60};
     vector<int> len_range = {80};
+*/
     for (int len_i = 0; (size_t)len_i < len_range.size(); len_i++) {
     int len = len_range[len_i];
     for (int thres_test_i = 0; (size_t)thres_test_i < thres_test_range.size(); thres_test_i++) {
@@ -45,6 +47,9 @@ int main(void)
         double a_l_prev = NAN, b_l_prev = NAN, a_u_prev = NAN, b_u_prev = NAN;
         for (int t = 0; t < 360; t++) {
             double price = sm.m_owarine[t];
+
+            agent.tradeBySLTP(code, t, price);
+
             if (std::isnan(price))
                 continue;
             if (t >= len) {
@@ -67,8 +72,6 @@ int main(void)
                 b_u_prev = b_u; b_l_prev = b_l;
             }
 
-            agent.tradeBySLTP(code, t, price);
-
 //            cout << agent.getHoldingStock(7203)->m_num << " " <<  agent.getHoldingStock(7203)->m_price << endl;
         }
 
@@ -76,8 +79,9 @@ int main(void)
         agent.ForcedSettlement(code, sm.m_owarine.size()-1, last_price);
         sum_profit += agent.getProfit();
         sum_trade_num += agent.getTradeNum();
+	cout << agent.getProfit() << " " << agent.getTradeNum() << "#day" << endl;
     }
-    cout << sum_profit << " " << sum_trade_num << " " << sum_profit / sum_trade_num<< " " << thres_test << " " << thres_sl << " " << len << endl;
+    cout << sum_profit << " " << sum_trade_num << " " << sum_profit / sum_trade_num<< " " << thres_test << " " << thres_sl << " " << len << "#file" <<  endl;
 
     }}} // parameters
 

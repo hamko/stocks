@@ -44,6 +44,15 @@ int Agent::buy(int code, double time, double num, double price, double sl, doubl
 
     return 0; 
 }
+double Agent::getUsingConsignmentGuaranteeMoney(void)
+{
+    double sum_consignment = 0;
+    for (std::map<int,HoldingStock*>::iterator it=m_stocks.begin(); it!=m_stocks.end(); ++it) {
+        sum_consignment += abs(m_stocks[it->first]->getNeededConsignmentGuaranteeMoney());
+    }
+
+    return sum_consignment;
+}
 
 int Agent::sell(int code, double time, double num, double price, double sl, double tp)
 {
