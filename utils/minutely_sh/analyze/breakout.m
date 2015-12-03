@@ -1,22 +1,23 @@
-thres_test_range = [0.1:0.1:0.6]; % 元は0.5
-thres_sl_range = [10:10:100]; % 元は40
+thres_test_range = [0.6];
+thres_sl_range = [120]; % 元は40
+process_no=0;
 for thres_test = thres_test_range
 for thres_sl = thres_sl_range
 
-visualize_flag = 1;
+visualize_flag = 0;
 visualize_movie_flag = 0;
 
 addpath('~/git/sample/octave');
 
 filenames = {'../7203/20150818' '../7203/20150907' '../7203/20150930' '../7203/20151022'  '../7203/20150819' '../7203/20150908' '../7203/20151001' '../7203/20151023' '../7203/20150820' '../7203/20150909' '../7203/20151002' '../7203/20151026' '../7203/20150821' '../7203/20150910' '../7203/20151005' '../7203/20151027' '../7203/20150824' '../7203/20150911' '../7203/20151006' '../7203/20151028' '../7203/20150825' '../7203/20150914' '../7203/20151007' '../7203/20151029' '../7203/20150826' '../7203/20150915' '../7203/20151008' '../7203/20151030' '../7203/20150827' '../7203/20150916' '../7203/20151009' '../7203/20151102' '../7203/20150828' '../7203/20150917' '../7203/20151013' '../7203/20151104' '../7203/20150831' '../7203/20150918' '../7203/20151014' '../7203/20151105' '../7203/20150901' '../7203/20150924' '../7203/20151015' '../7203/20151106' '../7203/20150902' '../7203/20150925' '../7203/20151016' '../7203/20151109' '../7203/20150903' '../7203/20150928' '../7203/20151020' '../7203/20151110' '../7203/20150904' '../7203/20150929' '../7203/20151021'};
-%filenames = {'../7203/20150818' '../7203/20150907' '../7203/20150930' '../7203/20151022'  '../7203/20150819' '../7203/20150908'};
+%filenames = {'../7203/20151111' '../7203/20151112' '../7203/20151113' '../7203/20151116' '../7203/20151118' '../7203/20151119'};
 %filenames = {'../7203/20150818' '../7203/20150907' };
 %filenames = {'../6146/20151106'};
 %filenames = {'../6146/20151109'};
 
 fileno = 0;
 for filename_cell = filenames
-fileno++; fprintf(stderr, '%d/%d\n', fileno, size(filenames, 2));
+fileno++; fprintf(stderr, '%d/%d\r', fileno, size(filenames, 2));
 filename = filename_cell{1};
 [date, minutes, hajimene, takane, yasune, owarine] = readStockCSV(filename);
 
@@ -114,6 +115,7 @@ function ret = call(price, num, oi, sl, tp)
     % 信用売り決済
     while (num & StockNum() < 0)
         buying_num = min(-stocks(StockIndexWithHighestSL()).num, num);
+        printf('#ShortCover %d stocks @ %f (%d, %f, %f)\n', buying_num, price, oi, sl, tp);
         num -= buying_num;
         money += (stocks(StockIndexWithHighestSL()).price - price) * buying_num;
         if (buying_num >= stocks(StockIndexWithHighestSL()).num)
@@ -121,7 +123,6 @@ function ret = call(price, num, oi, sl, tp)
         else
             stocks(StockIndexWithHighestSL()).num += buying_num;
         end
-        printf('#ShortCover %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
     end
     
     % 信用買新規建
@@ -133,6 +134,7 @@ function ret = call(price, num, oi, sl, tp)
     end
 
     call_timing = [call_timing, oi];
+    trade_num++;
     ret = 0;
 end
 
@@ -146,6 +148,7 @@ function ret = put(price, num, oi, sl, tp)
     % 信用買い決済
     while (num & StockNum() > 0)
         selling_num = min(stocks(StockIndexWithLowestSL()).num, num);
+        printf('#MarginSell %d stocks @ %f (%d, %f, %f)\n', selling_num, price, oi, sl, tp);
         num -= selling_num;
         money += (price - stocks(StockIndexWithLowestSL()).price) * selling_num;
         if (selling_num >= stocks(StockIndexWithLowestSL()).num)
@@ -153,7 +156,6 @@ function ret = put(price, num, oi, sl, tp)
         else
             stocks(StockIndexWithLowestSL()).num -= selling_num;
         end
-        printf('#MarginSell %d stocks @ %f (%d, %f, %f)\n', num, price, oi, sl, tp);
     end
     
     % 信用売新規建
@@ -165,6 +167,7 @@ function ret = put(price, num, oi, sl, tp)
     end
 
     put_timing = [put_timing, oi];
+    trade_num++;
     ret = 0;
 end
 
@@ -323,12 +326,12 @@ for oi = 1:size(owarine)
         %}
         % BREAKOUT!
         if (a_upper_v(oi-1)-a_lower_v(oi-1) < thres_test & a_upper_v(oi) - a_lower_v(oi) > thres_test)
-%            if (a_upper_v(oi) > thres_test & a_lower_v(oi) > thres_test & a_upper_v(oi-1)-a_lower_v(oi-1) < thres_test & a_upper_v(oi) - a_lower_v(oi) > thres_test)
-            put(o, minimum_unit, oi, owarine(oi)+thres_sl, owarine(oi)-60);
+%            put(o, minimum_unit, oi, owarine(oi)+thres_sl, owarine(oi)-60); % こっちが本命だがうまく行かない
+            call(o, minimum_unit, oi, owarine(oi)-thres_sl, owarine(oi)+60); 
         end
         if (a_upper_v(oi-1)-a_lower_v(oi-1) > -thres_test & a_upper_v(oi) - a_lower_v(oi) < -thres_test)
-%            if (a_upper_v(oi) < -thres_test & a_lower_v(oi) < -thres_test & a_upper_v(oi-1)-a_lower_v(oi-1) > -thres_test & a_upper_v(oi) - a_lower_v(oi) < -thres_test)
-            call(o, minimum_unit, oi, owarine(oi)-thres_sl, owarine(oi)+60); 
+%            call(o, minimum_unit, oi, owarine(oi)-thres_sl, owarine(oi)+60);  % こっちが本命だがうまく行かない
+            put(o, minimum_unit, oi, owarine(oi)+thres_sl, owarine(oi)-60);
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%
@@ -342,17 +345,17 @@ for oi = 1:size(owarine)
         % plot stock price
         plot([1:oi]', owarine(1:oi), 'k');
 
-            plot([oi-len:oi]', a_lower*[oi-len:oi]+b_lower, 'b');
+            plot([oi-len:oi]', a_lower*[oi-len:oi]+b_lower, 'r');
             for bt = call_timing
-                scatter(bt, owarine(bt), 'o');
+                scatter(bt, owarine(bt), 'r');
             end
             for st = put_timing
-                scatter(st, owarine(st), '*');
+                scatter(st, owarine(st), 'b');
             end
 
             xlim([0 380]); 
             ylim([min(owarine) max(owarine)]); 
-            plot([oi-len:oi]', a_upper*[oi-len:oi]+b_upper, 'r');
+            plot([oi-len:oi]', a_upper*[oi-len:oi]+b_upper, 'b');
             hold off;
 
             set(0,'CurrentFigure',f2);
@@ -392,5 +395,6 @@ end
 
 end
 
+process_no++; fprintf(stderr, 'PROCESS %d DONE\n', process_no);
 end
 end
