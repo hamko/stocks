@@ -120,8 +120,17 @@ void randomSearch(vector<double>& a) {
     }
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+    double check_num = -1;
+    if (argc >= 2) 
+        check_num = atof(argv[1]);
+    if (argc >= 3) 
+        minYen = atoll(argv[2]);
+    if (argc >= 4) 
+        meanYen = atoll(argv[3]);
+
     vector<double> a; double x; while (cin >> x) a.pb(x); // monthly sp500
+    if (check_num >= 0) a.pb(check_num);
     randomSearch(a);
     return 0;
 }
