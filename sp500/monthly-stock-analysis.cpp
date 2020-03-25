@@ -69,7 +69,7 @@ vector<double> getSigmaArray(vector<double>& a, ll len_max) {
 
 // param[0]: min investment, param[1~]: len_max_range
 const vll len_max_range = {2, 3, 4, 6, 12, 24, 48};
-ll minYen = 33333, meanYen = 300000;
+ll minYen = 33333, meanYen = 200000;
 tuple<double, vector<double>> evaluate(vector<double>& a, vector<double>& params) {
    ll n = a.size();
    vector<double> invest_amount_yen(n, params[0]);
@@ -135,4 +135,3 @@ int main(int argc, char** argv) {
     if (check_num >= 0) a.pb(check_num);
     randomSearch(a);
     return 0;
-}
