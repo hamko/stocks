@@ -135,3 +135,4 @@ int main(int argc, char** argv) {
     if (check_num >= 0) a.pb(check_num);
     randomSearch(a);
     return 0;
+}
