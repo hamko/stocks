@@ -45,6 +45,24 @@ size_t random_seed; struct init_{init_(){ ios::sync_with_stdio(false); cin.tie(0
 #define INF (ll)1e18
 #define mo  (ll)(1e9+7)
 
+string proceedMonth(string s, ll n) {
+    // 2020-01-10
+    cout << s << endl;
+    for (auto&& c : s) c -= '0';
+    ll y = 1000 * s[0] + 100 * s[1] + 10 * s[2] + s[3];
+    ll m = 10 * s[5] + s[6] + n - 1;
+    ll d = 10 * s[8] + s[9];
+    cout << y << " " << m << " " << d << endl;
+    y += m / 12;
+    m -= m / 12 * 12;
+    m++;
+    stringstream ss;
+    ss << setfill('0') << right << setw(4) << y << "-";
+    ss << setfill('0') << right << setw(2) << m << "-";
+    ss << setfill('0') << right << setw(2) << d;
+    return ss.str();
+}
+
 class property {
     string name = "";
     double num = 0;
@@ -78,8 +96,7 @@ class transaction {
     string description = ""; 
     shared_ptr<property> diff;
     friend ostream& operator<< (ostream& os, const shared_ptr<transaction> t);
-    bool applied = false;
-public:
+    public:
     transaction(shared_ptr<property> target_, string date_, string description_ = "") : target(target_), date(date_), description(description_) {
         diff = make_shared<property>();
     }
@@ -89,31 +106,27 @@ public:
 
     void buy(double num, double fee = 0) { 
         type = "buy"; diff->setNum(+num); diff->setCash(-fee); 
+        target->setNum(target->getNum() + diff->getNum());
+        target->setCash(target->getCash() + diff->getCash());
     }
     void sell(double num, double fee = 0) { 
         type = "sell"; diff->setNum(-num); diff->setCash(-fee); 
+        target->setNum(target->getNum() + diff->getNum());
+        target->setCash(target->getCash() + diff->getCash());
     }
     void update(double price) {
         type = "update"; diff->setPrice(price); 
+        target->setPrice(diff->getPrice());
     }
     void get(double cash) {
         type = "earn"; diff->setCash(cash); 
+        target->setNum(target->getNum() + diff->getNum());
+        target->setCash(target->getCash() + diff->getCash());
     }
     void pay(double cash) { 
         type = "pay"; diff->setCash(-cash); 
-    }
-
-    void apply(void) {
-        if (applied) assert(0);
-        if (type == "buy" || type == "sell" || type == "earn" || type == "pay") {
-            target->setNum(target->getNum() + diff->getNum());
-            target->setCash(target->getCash() + diff->getCash());
-        } else if (type == "update") {
-            target->setPrice(diff->getPrice());
-        } else {
-            assert(0);
-        }
-        applied = true;
+        target->setNum(target->getNum() + diff->getNum());
+        target->setCash(target->getCash() + diff->getCash());
     }
 };
 ostream& operator<< (ostream& os, const shared_ptr<transaction> t) {
@@ -129,7 +142,6 @@ void test(void) {
     shared_ptr<transaction> salary = make_shared<transaction>(hamko, "2020-06-25", "test hamko hamham");
     salary->get(1000.);
     cout << salary << endl;
-    salary->apply();
 
     cout << hamko << endl;
 }
@@ -156,24 +168,24 @@ void interactive(void) {
             assert(params.size() >= 4);
             double num = stod(params[3]);
             double fee = (params.size() >= 5 ?  stod(params[4]) : 0);
-            t->buy(num, fee), t->apply();
+            t->buy(num, fee);
         } else if (type == "sell") {
             assert(params.size() >= 4);
             double num = stod(params[3]);
             double fee = (params.size() >= 5 ?  stod(params[4]) : 0);
-            t->sell(num, fee), t->apply();
+            t->sell(num, fee);
         } else if (type == "earn") {
             assert(params.size() >= 4);
             double money = stod(params[3]);
-            t->get(money), t->apply();
+            t->get(money);
         } else if (type == "pay") {
             assert(params.size() >= 4);
             double money = stod(params[3]);
-            t->pay(money), t->apply();
+            t->pay(money);
         } else if (type == "update") {
             assert(params.size() >= 4);
             double price = stod(params[3]);
-            t->update(price), t->apply();
+            t->update(price);
         } else {
             assert(0);
         }
@@ -183,8 +195,59 @@ void interactive(void) {
     }
 }
 
+void simulate(void) {
+    shared_ptr<property> hamko = make_shared<property>();
+    hamko->setName("hamko");
+    hamko->setCash(10000000);
+
+    shared_ptr<property> stock = make_shared<property>();
+    stock->setName("stock");
+    stock->setPrice(10000);
+    stock->setNum(700);
+
+    string date = "2020-06-01";
+
+    double yy = 0.07; // 株利回り
+    double salary_month = 1.0e6; // 月収入 [yen]
+    double tax_rate = 0.2; // 税率
+    double cost_month = 200000; // 月生活費 [yen]
+    double stock_month = salary_month * (0.9 - tax_rate);
+    while (date <= "2027-06-01") {
+        // hamko 給料
+        shared_ptr<transaction> salary = make_shared<transaction>(hamko, date, "hamko salary");
+        salary->get(salary_month);
+
+        // hamko 税金
+        shared_ptr<transaction> tax = make_shared<transaction>(hamko, date, "hamko salary");
+        tax->pay(salary_month * tax_rate);
+
+        // hamko 生活費
+        shared_ptr<transaction> cost = make_shared<transaction>(hamko, date, "hamko cost");
+        cost->pay(cost_month);
+
+        // hamko 株自己成長
+        shared_ptr<transaction> increase = make_shared<transaction>(stock, date, "hamko stock");
+        increase->update(stock->getPrice() * (1. + yy / 12.));
+
+        // hamko 株購入
+        shared_ptr<transaction> hamko2stock_out = make_shared<transaction>(hamko, date, "hamko -> stock");
+        hamko2stock_out->pay(stock_month);
+        shared_ptr<transaction> hamko2stock_in = make_shared<transaction>(stock, date, "hamko -> stock");
+        hamko2stock_in->buy(stock_month / stock->getPrice());
+
+        cout << "################" << endl;
+        cout << date << endl;
+        cout << hamko << endl;
+        cout << stock << endl;
+        cout << hamko->getCash() + stock->getNum() * stock->getPrice() << endl;
+
+        date = proceedMonth(date, 1);
+    }
+
+}
 int main(void) {
-    interactive();
+    //    interactive();
+    simulate();
 
     return 0;
 }
