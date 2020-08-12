@@ -208,8 +208,8 @@ void simulate(void) {
     string date = "2020-06-01";
 
     double yy = 0.07; // 株利回り
-    double salary_month = 1.0e6; // 月収入 [yen]
-    double tax_rate = 0.2; // 税率
+    double salary_month = 5.0e6; // 月収入 [yen]
+    double tax_rate = 0.45; // 税率
     double cost_month = 200000; // 月生活費 [yen]
     double stock_month = salary_month * (0.9 - tax_rate);
     while (date <= "2027-06-01") {
@@ -239,7 +239,9 @@ void simulate(void) {
         cout << date << endl;
         cout << hamko << endl;
         cout << stock << endl;
-        cout << hamko->getCash() + stock->getNum() * stock->getPrice() << endl;
+        double net_asset = hamko->getCash() + stock->getNum() * stock->getPrice();
+        cout << net_asset << endl;
+        cout << stock->getNum() * stock->getPrice() / net_asset << endl;
 
         date = proceedMonth(date, 1);
     }
